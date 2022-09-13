@@ -1,0 +1,15 @@
+root = true
+
+[*]
+end_of_line = lf
+trim_trailing_whitespace = true
+insert_final_newline = true
+charset = utf-8
+
+[*.{js,json,yaml,yml,liquid,html,htm,rb,py,ts,css,sass}]
+indent_style = space
+indent_size = 2
+
+[*.{php,sh,zsh}]
+indent_style = space
+indent_size = 4

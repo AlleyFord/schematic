@@ -5,6 +5,11 @@ const { validate } = require('schema-utils');
 const schema = require('./schema');
 
 
+/*
+  somebody make this better and tell shopify to standardize the practice.
+  shopify json schema ENORMOUSLY SUCKS to work with without this kind of helper
+*/
+
 
 class Schematic {
   opts = {
@@ -15,6 +20,10 @@ class Schematic {
     verbose: true,
   };
 
+  refSchemaEx  = /{%\-?\s*comment\s*\-?%}\s*schematic\s*['"](.*)['"]\s*{%\-?\s*endcomment\s*\-?%}/mi;
+  replaceSchemaEx = /({%\-?\s*schema\s*\-?%}[\s\S]*{%\-?\s*endschema\s*\-?%})/mig
+
+
   constructor(opts = null) {
     if (opts) {
       validate(schema, opts);
@@ -24,8 +33,11 @@ class Schematic {
   }
 
 
-  out(v) {
-    if (this.opts.verbose) process.stdout.write(v);
+  out(v, error) {
+    const isError = typeof error !== 'undefined' && error;
+
+    if (this.opts.verbose || isError) process.stdout.write(v + (isError ? "\n" : ''));
+    if (isError) return false;
   }
 
 
@@ -34,41 +46,64 @@ class Schematic {
 
     const files = await fs.readdir(this.opts.paths.sections);
 
-    return Promise.all(
-      files.map(async file => {
-        const floc = path.resolve(this.opts.paths.sections, file);
-        const fstat = await fs.stat(floc);
+    return Promise.all(files.map(async file => {
+      const floc = path.resolve(this.opts.paths.sections, file);
+      const fstat = await fs.stat(floc);
 
-        if (fstat.isFile() && path.extname(file) === '.liquid') {
-          try {
-            const newContents = await this.buildSchema(floc);
+      if (fstat.isFile() && path.extname(file) === '.liquid') {
+        let contents = false;
 
-            await fs.writeFile(floc, newContents);
+        try {
+          contents = await fs.readFile(floc, 'utf-8');
+
+          // no schematic tag to replace
+          if (!this.refSchemaEx.test(contents)) {
+            return;
           }
-          catch(err) {
-            throw `${floc}: ${err}`;
+          if (!contents) {
+            return this.out(`${floc}: no file contents\n`);
           }
         }
-      })
-    );
+        catch(err) {
+          this.out(`${floc}: ${err}`, true);
+        }
+
+        try {
+          const newContents = this.buildSchema(floc, contents);
+
+          if (newContents) {
+            await fs.writeFile(floc, newContents);
+          }
+          else {
+            this.out(`${floc}: new contents failed\n`);
+          }
+        }
+        catch(err) {
+          this.out(`${floc}: ${err}`, true);
+        }
+      }
+    }))
+    .catch(err => {
+      this.out(`${err}`, true);
+    });
   }
 
 
-  async buildSchema(floc) {
+  buildSchema(floc, contents) {
     const fname = path.basename(floc, '.liquid');
-    const contents = await fs.readFile(floc, 'utf-8');
 
-    const refSchemaEx  = /{%\-?\s*comment\s*\-?%}\s*schematic\s*['"](.*)['"]\s*{%\-?\s*endcomment\s*\-?%}/mi;
-    const replaceSchemaEx = /({%\-?\s*schema\s*\-?%}[\s\S]*{%\-?\s*endschema\s*\-?%})/mig;
+    this.out(`${floc}: uses schematic. generating schema...`);
 
-    // no schematic tag to replace
-    if (!refSchemaEx.test(contents)) {
-      return contents;
+    let match, importFile;
+
+    try {
+      [match, importFile] = contents.match(this.refSchemaEx);
     }
-
-    this.out(`  ${floc}: uses schematic. generating schema...`);
-
-    let [match, importFile] = contents.match(refSchemaEx);
+    catch(err) {
+      return this.out([
+        floc, err, 'matched failed',
+      ].join('\n'), true);
+    }
 
     importFile = path.resolve(this.opts.paths.schema, `${importFile}.js`);
 
@@ -76,17 +111,17 @@ class Schematic {
 
     try {
       schema = require(importFile);
-
-      if (typeof schema !== 'object') {
-        throw [
-          schema, '^', `schema not javascript object`,
-        ].join('\n');
-      }
     }
     catch(err) {
-      throw [
-        err, match, '^', `schema not loadable: ${importFile}\nin ${floc}`,
-      ].join('\n');
+      return this.out([
+        floc, err, match, `schema not loadable: ${importFile}`,
+      ].join('\n'), true);
+    }
+
+    if (typeof schema !== 'object') {
+      return this.out([
+        floc, schema, `schema not javascript object`,
+      ].join('\n'), true);
     }
 
     const newSchema = [
@@ -97,10 +132,12 @@ class Schematic {
 
     let newContents;
 
-    if (replaceSchemaEx.test(contents)) {
-      newContents = contents.replace(replaceSchemaEx, newSchema);
+    if (this.replaceSchemaEx.test(contents)) {
+      this.out(`replacing existing schema...`);
+      newContents = contents.replace(this.replaceSchemaEx, newSchema);
     }
     else {
+      this.out(`setting new schema...`);
       newContents = [
         contents,
         newSchema,

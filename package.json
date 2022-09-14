@@ -1,7 +1,7 @@
 {
-  "name": "schematic",
+  "name": "@alleyford/schematic",
   "version": "1.0.0",
-  "description": "",
+  "description": "Write Shopify schema with JS, not JSON",
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/AlleyFord/schematic.git"
   },
-  "author": "alley@alleyford.com",
+  "author": "Josh Alley <alley@alleyford.com>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/AlleyFord/schematic/issues"

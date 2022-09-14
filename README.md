@@ -8,6 +8,8 @@ Working with syntatically strict JSON in shopify themes sucks. You can't put sch
 Schematic helps you write schema in JS, not JSON. You can build arrays or objects however you want with normal import/require. Use functions. Do whatever. This is a standalone `node` executable that will compile & swap schema definitions for sections whenever it's run. That means it edits the actual `.liquid` file for simplicity and compatibility with task runners, build managers, Shopify CLI theme serving, and whatever else.
 
 ## To use
+`npm i -D @alleyford/schematic`
+
 By default, Schematic looks for schema definitions in `src/schema`. You can change this by passing arguments to the Schematic constructor:
 
 ```
@@ -98,8 +100,8 @@ The most straight-forward way to use and incorporate into your flow is to make a
 // schematic
 
 #!/usr/bin/env node --no-warnings
-const Schematic = require('schematic');
-const app = new Schematic();
+const Schematic = require('@alleyford/schematic');
+const app = new Schematic(); // pass opts to this
 app.run();
 ```
 

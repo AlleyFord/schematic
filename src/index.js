@@ -12,7 +12,7 @@ const schema = require('./schema');
 
 
 class Schematic {
-  opts = {
+  #opts = {
     paths: {
       sections: './sections',
       schema: './src/schema',
@@ -20,15 +20,15 @@ class Schematic {
     verbose: true,
   };
 
-  refSchemaEx  = /{%\-?\s*comment\s*\-?%}\s*schematic\s*['"](.*)['"]\s*{%\-?\s*endcomment\s*\-?%}/mi;
-  replaceSchemaEx = /({%\-?\s*schema\s*\-?%}[\s\S]*{%\-?\s*endschema\s*\-?%})/mig
+  #refSchemaEx  = /{%\-?\s*comment\s*\-?%}\s*schematic\s*['"](.*)['"]\s*{%\-?\s*endcomment\s*\-?%}/mi;
+  #replaceSchemaEx = /({%\-?\s*schema\s*\-?%}[\s\S]*{%\-?\s*endschema\s*\-?%})/mig
 
 
   constructor(opts = null) {
     if (opts) {
       validate(schema, opts);
 
-      this.opts = opts;
+      this.#opts = opts;
     }
   }
 
@@ -36,18 +36,18 @@ class Schematic {
   out(v, error) {
     const isError = typeof error !== 'undefined' && error;
 
-    if (this.opts.verbose || isError) process.stdout.write(v + (isError ? "\n" : ''));
+    if (this.#opts.verbose || isError) process.stdout.write(v + (isError ? "\n" : ''));
     if (isError) return false;
   }
 
 
   async run() {
-    this.out(`schematic: scanning for schema in ${this.opts.paths.sections}\n`);
+    this.out(`schematic: scanning for schema in ${this.#opts.paths.sections}\n`);
 
-    const files = await fs.readdir(this.opts.paths.sections);
+    const files = await fs.readdir(this.#opts.paths.sections);
 
     return Promise.all(files.map(async file => {
-      const floc = path.resolve(this.opts.paths.sections, file);
+      const floc = path.resolve(this.#opts.paths.sections, file);
       const fstat = await fs.stat(floc);
 
       if (fstat.isFile() && path.extname(file) === '.liquid') {
@@ -57,7 +57,7 @@ class Schematic {
           contents = await fs.readFile(floc, 'utf-8');
 
           // no schematic tag to replace
-          if (!this.refSchemaEx.test(contents)) {
+          if (!this.#refSchemaEx.test(contents)) {
             return;
           }
           if (!contents) {
@@ -69,7 +69,7 @@ class Schematic {
         }
 
         try {
-          const newContents = this.buildSchema(floc, contents);
+          const newContents = await this.buildSchema(floc, contents);
 
           if (newContents) {
             await fs.writeFile(floc, newContents);
@@ -89,7 +89,11 @@ class Schematic {
   }
 
 
-  buildSchema(floc, contents) {
+  async buildSchema(floc, contents) {
+    if (typeof contents === 'undefined') {
+      contents = await fs.readFile(floc, 'utf-8');
+    }
+
     const fname = path.basename(floc, '.liquid');
 
     this.out(`${floc}: uses schematic. generating schema...`);
@@ -97,7 +101,7 @@ class Schematic {
     let match, importFile;
 
     try {
-      [match, importFile] = contents.match(this.refSchemaEx);
+      [match, importFile] = contents.match(this.#refSchemaEx);
     }
     catch(err) {
       return this.out([
@@ -105,7 +109,7 @@ class Schematic {
       ].join('\n'), true);
     }
 
-    importFile = path.resolve(this.opts.paths.schema, `${importFile}.js`);
+    importFile = path.resolve(this.#opts.paths.schema, `${importFile}.js`);
 
     let schema;
 
@@ -132,9 +136,9 @@ class Schematic {
 
     let newContents;
 
-    if (this.replaceSchemaEx.test(contents)) {
+    if (this.#replaceSchemaEx.test(contents)) {
       this.out(`replacing existing schema...`);
-      newContents = contents.replace(this.replaceSchemaEx, newSchema);
+      newContents = contents.replace(this.#replaceSchemaEx, newSchema);
     }
     else {
       this.out(`setting new schema...`);
@@ -153,4 +157,18 @@ class Schematic {
 };
 
 
-module.exports = Schematic;
+class SchematicObjects {
+  common = {};
+  mutations = {};
+
+  constructor() {
+    this.common = require('./schema/common.js');
+    this.mutations = require('./schema/mutations.js');
+  }
+}
+
+
+module.exports = {
+  Schematic: Schematic,
+  app: new SchematicObjects(),
+};

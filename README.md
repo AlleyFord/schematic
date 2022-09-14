@@ -37,6 +37,11 @@ module.exports = {
     },
   ],
   settings: [
+    {
+      type: 'text',
+      id: 'heading',
+      label: 'Heading',
+    },
     common.iconWidth,
   ],
 };
@@ -100,12 +105,154 @@ The most straight-forward way to use and incorporate into your flow is to make a
 // schematic
 
 #!/usr/bin/env node --no-warnings
-const Schematic = require('@alleyford/schematic');
+const { Schematic } = require('@alleyford/schematic');
 const app = new Schematic(); // pass opts to this
 app.run();
 ```
 
 Then when you want to build, run the command `./schematic`.
+
+## Built-in components and functions
+Since it also sucks creating a bunch of schema from scratch for every project, Schematic comes with some nice generic definitions to use out of the box. Our example schema definition can then become:
+
+```
+// src/schema/exampleIcons.js
+
+const { app } = require('@alleyford/schematic');
+const common = require('./common.js');
+
+module.exports = {
+  name: 'Icons',
+  presets: [
+    {
+      name: 'Icons',
+    },
+  ],
+  settings: [
+    app.common.heading,
+    common.iconWidth,
+  ],
+};
+```
+
+Sometimes you have a specific code reason to change the ID for a definition, but otherwise keep the definition the same. Schematic supports some 'mutations' to adjust definitions on the fly:
+
+```
+// src/schema/exampleIcons.js
+
+const { app } = require('@alleyford/schematic');
+const common = require('./common.js');
+
+module.exports = {
+  name: 'Icons',
+  presets: [
+    {
+      name: 'Icons',
+    },
+  ],
+  settings: [
+    app.mutations.changeId(app.common.heading, 'heading_left'),
+    common.iconWidth,
+    app.mutations.changeId(app.common.heading, 'heading_right'),
+  ],
+};
+```
+
+Or to make drawing panel schema a little easier:
+```
+// src/schema/exampleIcons.js
+
+const { app } = require('@alleyford/schematic');
+const common = require('./common.js');
+
+module.exports = {
+  name: 'Icons',
+  presets: [
+    {
+      name: 'Icons',
+    },
+  ],
+  settings: [
+    app.mutations.header('Left icon'),
+    app.mutations.changeId(app.common.heading, 'heading_left'),
+    app.mutations.changeId(common.iconWidth, 'icon_left'),
+
+    app.mutations.header('Right icon'),
+    app.mutations.changeId(app.common.heading, 'heading_right'),
+    app.mutations.changeId(common.iconWidth, 'icon_right'),
+  ],
+};
+```
+
+## Bundling common patterns
+Sections sometimes have fields that always go together, like a `heading`, `subheading`, and `copy`. Instead of defining every one repeatedly, you can use the spread (`...`) operator when pulling them from a definition.
+
+```
+// src/components/cta.js
+
+module.exports = [
+  {
+    type: 'text',
+    id: 'cta_copy',
+    label: 'Button copy',
+  },
+  {
+    type: 'url',
+    id: 'cta_link',
+    label: 'Button destination',
+  },
+  {
+    type: 'select',
+    id: 'cta_style',
+    label: 'Button style',
+    options: [
+      {
+        value: 'button',
+        label: 'Button',
+      },
+      {
+        value: 'link',
+        label: 'Link',
+      },
+      {
+        value: 'hidden',
+        label: 'None',
+      },
+    ],
+    default: 'link',
+  },
+];
+```
+
+This will draw in all three def
+
+```
+// src/schema/exampleIcons.js
+
+const { app } = require('@alleyford/schematic');
+const common = require('./common.js');
+const cta = require('./components/cta.js');
+
+module.exports = {
+  name: 'Icons',
+  presets: [
+    {
+      name: 'Icons',
+    },
+  ],
+  settings: [
+    app.mutations.header('Left icon'),
+    app.mutations.changeId(app.common.heading, 'heading_left'),
+    app.mutations.changeId(common.iconWidth, 'icon_left'),
+
+    app.mutations.header('Right icon'),
+    app.mutations.changeId(app.common.heading, 'heading_right'),
+    app.mutations.changeId(common.iconWidth, 'icon_right'),
+
+    ...cta,
+  ],
+};
+```
 
 ## Other ways to use
 The approach is simple and can be worked into whatever setup you have for dev. Because it writes back to the existing `.liquid` files, be wary of infinite loops when including this in an automatic build step.

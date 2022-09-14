@@ -41,12 +41,12 @@ class Schematic {
 
         if (fstat.isFile() && path.extname(file) === '.liquid') {
           try {
-            const contents = await this.buildSchema(floc);
+            const newContents = await this.buildSchema(floc);
 
-            await fs.writeFile(floc, contents);
+            await fs.writeFile(floc, newContents);
           }
           catch(err) {
-            throw `/${floc}: ${err}`;
+            throw `${floc}: ${err}`;
           }
         }
       })
@@ -58,47 +58,34 @@ class Schematic {
     const fname = path.basename(floc, '.liquid');
     const contents = await fs.readFile(floc, 'utf-8');
 
-    const refSchemaEx  = /{%\-?\s*comment\s*\-?%}\s*schematic\s*['"](?<file>.*)['"]\s*{%\-?\s*endcomment\s*\-?%}/mi;
-    const replaceSchemaEx = /({%\-?\s*schema\s*\-?%}[\s\S]*?{%\-?\s*endschema\s*\-?%})/mi;
+    const refSchemaEx  = /{%\-?\s*comment\s*\-?%}\s*schematic\s*['"](.*)['"]\s*{%\-?\s*endcomment\s*\-?%}/mi;
+    const replaceSchemaEx = /({%\-?\s*schema\s*\-?%}[\s\S]*{%\-?\s*endschema\s*\-?%})/mig;
 
-    // no schema to replace
+    // no schematic tag to replace
     if (!refSchemaEx.test(contents)) {
       return contents;
     }
 
     this.out(`  ${floc}: uses schematic. generating schema...`);
 
-    let [match, importPath, , guts] = contents.match(refSchemaEx);
+    let [match, importFile] = contents.match(refSchemaEx);
 
-    importPath = path.resolve(this.opts.paths.schema, importPath + '.js');
+    importFile = path.resolve(this.opts.paths.schema, `${importFile}.js`);
 
-    let importSchema;
+    let schema;
 
     try {
-      importSchema = require(importPath);
+      schema = require(importFile);
+
+      if (typeof schema !== 'object') {
+        throw [
+          schema, '^', `schema not javascript object`,
+        ].join('\n');
+      }
     }
     catch(err) {
       throw [
-        match, '^',
-        `    schema to import not found or unreadable: ${importPath}`,
-        `    in ${floc}`,
-      ].join('\n');
-    }
-
-    try {
-      guts = JSON.parse(guts);
-    }
-    catch(err) {
-      guts = null;
-    }
-
-    let schema = importSchema;
-
-    if (typeof schema !== 'object') {
-      throw [
-        schema, '^',
-        `    schema expected to be of type "object"`,
-        `    in ${require.resolve(importPath)}`,
+        err, match, '^', `schema not loadable: ${importFile}\nin ${floc}`,
       ].join('\n');
     }
 
@@ -107,14 +94,15 @@ class Schematic {
         JSON.stringify(schema, null, 2),
       '{%- endschema -%}',
     ].join('\n');
-    let newContents = contents;
 
-    if (replaceSchemaEx.test(newContents)) {
-      newContents = newContents.replace(replaceSchemaEx, newSchema);
+    let newContents;
+
+    if (replaceSchemaEx.test(contents)) {
+      newContents = contents.replace(replaceSchemaEx, newSchema);
     }
     else {
       newContents = [
-        newContents,
+        contents,
         newSchema,
       ].join('\n');
     }

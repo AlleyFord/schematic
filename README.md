@@ -224,7 +224,7 @@ module.exports = [
 ];
 ```
 
-This will draw in all three def
+This (`...cta`) will draw in all three definitions:
 
 ```
 // src/schema/exampleIcons.js

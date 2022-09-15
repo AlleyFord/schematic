@@ -1,7 +1,8 @@
 {
   "name": "@alleyford/schematic",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Write Shopify schema with JS, not JSON",
+  "keywords": ["shopify", "section", "schema", "build"],
   "main": "src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

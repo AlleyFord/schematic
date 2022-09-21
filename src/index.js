@@ -21,7 +21,7 @@ class Schematic {
   };
 
   #refSchemaEx  = /{%\-?\s*comment\s*\-?%}\s*schematic\s*['"](.*)['"]\s*{%\-?\s*endcomment\s*\-?%}/mi;
-  #replaceSchemaEx = /({%\-?\s*schema\s*\-?%}[\s\S]*{%\-?\s*endschema\s*\-?%})/mig
+  #replaceSchemaEx = /({%\-?\s*schema\s*\-?%}[\s\S]*{%\-?\s*endschema\s*\-?%})/mig;
 
 
   constructor(opts = null) {

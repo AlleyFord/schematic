@@ -1,6 +1,6 @@
 {
   "name": "@alleyford/schematic",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "Write Shopify schema with JS, not JSON",
   "keywords": ["shopify", "section", "schema", "build"],
   "main": "src/index.js",

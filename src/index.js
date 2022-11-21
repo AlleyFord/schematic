@@ -20,7 +20,7 @@ class Schematic {
     verbose: true,
   };
 
-  #refSchemaEx  = /{%\-?\s*comment\s*\-?%}\s*schematic\s*['"](.*)['"]\s*{%\-?\s*endcomment\s*\-?%}/mi;
+  #refSchemaEx  = /{%\-?\s*comment\s*\-?%}\s*schematic\s*['"](.*)['"]\s*(.*)?{%\-?\s*endcomment\s*\-?%}/mi;
   #replaceSchemaEx = /({%\-?\s*schema\s*\-?%}[\s\S]*{%\-?\s*endschema\s*\-?%})/mig;
 
 
@@ -98,10 +98,10 @@ class Schematic {
 
     this.out(`${floc}: uses schematic. generating schema...`);
 
-    let match, importFile;
+    let match, importFilename, opts;
 
     try {
-      [match, importFile] = contents.match(this.#refSchemaEx);
+      [match, importFilename, opts] = contents.match(this.#refSchemaEx);
     }
     catch(err) {
       return this.out([
@@ -109,7 +109,7 @@ class Schematic {
       ].join('\n'), true);
     }
 
-    importFile = path.resolve(this.#opts.paths.schema, `${importFile}.js`);
+    const importFile = path.resolve(this.#opts.paths.schema, `${importFilename}.js`);
 
     let schema;
 
@@ -148,12 +148,54 @@ class Schematic {
       ].join('\n');
     }
 
-    this.out(`ok\n`);
+    this.out(`ok`);
+
+    if (opts) {
+      opts = opts.split(' ');
+
+      for (let opt of opts) {
+        opt = opt.trim();
+
+        if (opt === 'writeCode') {
+          newContents = this.writeCode(newContents, importFilename, schema);
+        }
+      }
+    }
+
+    this.out(`\n`);
 
     return newContents;
   }
 
 
+  writeCode(contents, importFilename, schema) {
+    let lines = [], rendered = '';
+
+    if (schema.settings) {
+      for (const obj of schema.settings) {
+        if (obj.id) {
+          lines.push(`${obj.id}: section.settings.${obj.id}`);
+        }
+      }
+    }
+
+    if (schema.blocks) {
+      lines.push(`blocks: section.blocks`);
+    }
+
+    for (const line of lines) {
+      rendered += `    ${line}\n`;
+    }
+
+    const code = `{%-
+
+  render '${importFilename}'
+${rendered}
+-%}
+{%- comment -%} schematic`;
+
+    return contents.replace(/^([.\s\S]*){%\-?\s*comment\s*\-?%}\s*schematic/mgi, code);
+  }
 };
 
 

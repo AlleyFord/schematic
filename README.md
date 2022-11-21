@@ -254,6 +254,32 @@ module.exports = {
 };
 ```
 
+## Auto-write boilerplate switchboard code
+I think it's a helpful design pattern to keep most logic out of sections and offload it to snippets. Since you're auto-generating schema, it may make sense in some cases to also auto-generate the switchboard code to render section schema to its identically-named snippet.
+
+You do this by passing an argument to the magic comment, like so:
+```
+// sections/icons.liquid, bottom of file
+
+{%- comment -%} schematic 'exampleIcons' writeCode {%- endcomment -%}
+```
+
+Running Schematic then produces the compiled schema, plus a line to render the snippet with all that schema automatically mapped:
+```
+{%-
+
+    render 'icons'
+        heading_left: section.settings.heading_left
+        icon_left: section.settings.icon_left
+        heading_right: section.settings.heading_right
+        icon_right: section.settings.icon_right
+        cta_copy: section.settings.cta_copy
+        cta_link: section.settings.cta_link
+        cta_style: section.settings.cta_style
+
+-%}
+```
+
 ## Other ways to use
 The approach is simple and can be worked into whatever setup you have for dev. Because it writes back to the existing `.liquid` files, be wary of infinite loops when including this in an automatic build step.
 

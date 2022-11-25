@@ -1,0 +1,5 @@
+#!/usr/bin/env node --no-warnings
+const { Schematic } = require('../src/schematic.js');
+
+const app = new Schematic();
+app.run();

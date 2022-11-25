@@ -1,11 +1,11 @@
 {
   "name": "@alleyford/schematic",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "Write Shopify schema with JS, not JSON",
   "keywords": ["shopify", "section", "schema", "build"],
-  "main": "src/index.js",
-  "scripts": {
-    "schematic": "node src/index.js"
+  "main": "./src/schematic.js",
+  "bin": {
+    "schematic": "./bin/schematic"
   },
   "repository": {
     "type": "git",

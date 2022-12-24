@@ -15,6 +15,7 @@ class Schematic {
   #opts = {
     paths: {
       sections: './sections',
+      config: './config',
       schema: './src/schema',
     },
     verbose: true,
@@ -41,7 +42,38 @@ class Schematic {
   }
 
 
+  async buildConfig() {
+    this.out(`schematic: checking for ${this.#opts.paths.schema}/settings_schema.js...`);
+
+    const settingsSchema = path.resolve(this.#opts.paths.schema, `settings_schema.js`);
+
+    if (fs.existsSync(settingsSchema)) {
+      this.out(`uses schematic. generating schema...`);
+
+      const schema = this.compileSchema(settingsSchema);
+
+      if (schema) {
+        try {
+          const parsed = JSON.stringify(schema, null, 2);
+
+          await fs.writeFile(path.resolve(this.#opts.paths.config, 'settings_schema.json'), parsed);
+        }
+        catch(err) {
+          return this.out(`error writing to file: ${err}`, true);
+        }
+
+        this.out(`ok\n`);
+      }
+    }
+    else {
+      this.out(`nothing to do\n`);
+    }
+  }
+
+
   async run() {
+    await this.buildConfig();
+
     this.out(`schematic: scanning for schema in ${this.#opts.paths.sections}\n`);
 
     const files = await fs.readdir(this.#opts.paths.sections);
@@ -88,6 +120,27 @@ class Schematic {
     });
   }
 
+  compileSchema(file) {
+    let schema;
+
+    try {
+      schema = require(file);
+    }
+    catch(err) {
+      return this.out([
+        err, `schema not loadable: ${file}`,
+      ].join('\n'), true);
+    }
+
+    if (typeof schema !== 'object') {
+      return this.out([
+        schema, `schema not javascript object`,
+      ].join('\n'), true);
+    }
+
+    return schema;
+  }
+
 
   async buildSchema(floc, contents) {
     if (typeof contents === 'undefined') {
@@ -110,23 +163,7 @@ class Schematic {
     }
 
     const importFile = path.resolve(this.#opts.paths.schema, `${importFilename}.js`);
-
-    let schema;
-
-    try {
-      schema = require(importFile);
-    }
-    catch(err) {
-      return this.out([
-        floc, err, match, `schema not loadable: ${importFile}`,
-      ].join('\n'), true);
-    }
-
-    if (typeof schema !== 'object') {
-      return this.out([
-        floc, schema, `schema not javascript object`,
-      ].join('\n'), true);
-    }
+    const schema = this.compileSchema(importFile);
 
     const newSchema = [
       '{%- schema -%}',
@@ -148,8 +185,6 @@ class Schematic {
       ].join('\n');
     }
 
-    this.out(`ok`);
-
     if (opts) {
       opts = opts.split(' ');
 
@@ -157,12 +192,14 @@ class Schematic {
         opt = opt.trim();
 
         if (opt === 'writeCode') {
+          this.out(`writing switchboard code...`);
+
           newContents = this.writeCode(newContents, importFilename, schema);
         }
       }
     }
 
-    this.out(`\n`);
+    this.out(`ok.\n`);
 
     return newContents;
   }

@@ -43,6 +43,13 @@ const mutations =
   },
 
 
+  removeProperties: (obj, keys) => {
+    keys.forEach(key => {
+      obj = mutations.removeProperty(obj, key);
+    });
+
+    return obj;
+  },
   removeProperty: (obj, key) => {
     let newObj = {...obj};
 

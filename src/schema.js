@@ -19,7 +19,7 @@ module.exports = {
     },
     verbose: {
       description: 'Echos out what it is doing',
-      type: 'boolen',
+      type: 'boolean',
     },
   },
   additionalProperties: false,

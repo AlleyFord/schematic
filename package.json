@@ -1,14 +1,14 @@
 {
   "name": "@alleyford/schematic",
-  "version": "1.1.8",
-  "description": "Write Shopify schema with JS, not JSON",
+  "version": "2.0.1",
+  "description": "Write Shopify schema with JS, not JSON.",
   "keywords": [
     "shopify",
     "section",
     "schema",
     "build"
   ],
-  "main": "./src/schematic.js",
+  "main": "./loader.js",
   "bin": {
     "schematic": "./bin/schematic"
   },
@@ -25,7 +25,6 @@
   "devDependencies": {
   },
   "dependencies": {
-    "fs-extra": "^11.1.0",
-    "schema-utils": "^4.0.0"
+    "fs-extra": "^11.1.0"
   }
 }

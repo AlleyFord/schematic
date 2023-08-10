@@ -1,14 +1,6 @@
 const fs = require('fs-extra');
 const path = require('path');
-const { validate } = require('schema-utils');
 
-const schema = require('./schema');
-
-
-/*
-  somebody make this better and tell shopify to standardize the practice.
-  shopify json schema ENORMOUSLY SUCKS to work with without this kind of helper
-*/
 
 
 class Schematic {
@@ -21,14 +13,13 @@ class Schematic {
     verbose: true,
   };
 
-  #refSchemaEx  = /{%\-?\s*comment\s*\-?%}\s*schematic\s*['"](.*)['"]\s*(.*)?{%\-?\s*endcomment\s*\-?%}/mi;
+  #refSchemaEx = /{%\-?\s*comment\s*\-?%}\s*schematic\s*['"]?([^'"\s{]+)?['"]?\s*(.*)?{%\-?\s*endcomment\s*\-?%}/mi;
   #replaceSchemaEx = /({%\-?\s*schema\s*\-?%}[\s\S]*{%\-?\s*endschema\s*\-?%})/mig;
 
+  //loader = require.resolve('./webpackLoader.js');
 
   constructor(opts = null) {
     if (opts) {
-      validate(schema, opts);
-
       this.#opts = opts;
     }
   }
@@ -41,6 +32,24 @@ class Schematic {
     if (isError) return false;
   }
 
+  async preCheck() {
+    let statCheck = true;
+    let fails = [];
+
+    for (const [name, fpath] of Object.entries(this.#opts.paths)) {
+      try {
+        await fs.stat(path.resolve(fpath));
+      }
+      catch(e) {
+        fails.push(`${name}:${fpath}`);
+      }
+    }
+
+    if (fails.length) {
+      console.log('could not find required directories from this path. run in the shopify theme root? (' + fails.join(', ') + ')');
+      process.exit();
+    }
+  }
 
   async buildConfig() {
     this.out(`schematic: checking for ${this.#opts.paths.schema}/settings_schema.js...`);
@@ -71,12 +80,15 @@ class Schematic {
   }
 
 
-  async run() {
+  async run(files) {
+    await this.preCheck();
     await this.buildConfig();
 
     this.out(`schematic: scanning for schema in ${this.#opts.paths.sections}\n`);
 
-    const files = await fs.readdir(this.#opts.paths.sections);
+    if (typeof files === 'undefined' || !files) {
+      files = await fs.readdir(this.#opts.paths.sections, 'utf8');
+    }
 
     return Promise.all(files.map(async file => {
       const floc = path.resolve(this.#opts.paths.sections, file);
@@ -86,11 +98,11 @@ class Schematic {
         let contents = false;
 
         try {
-          contents = await fs.readFile(floc, 'utf-8');
+          contents = await fs.readFile(floc, 'utf8');
 
           // no schematic tag to replace
           if (!this.#refSchemaEx.test(contents)) {
-            return;
+            return this.out(`${floc}: no schematic code\n`);
           }
           if (!contents) {
             return this.out(`${floc}: no file contents\n`);
@@ -138,6 +150,12 @@ class Schematic {
       ].join('\n'), true);
     }
 
+    // transforms for old schema to new shopify schema
+    if (typeof schema.templates !== 'undefined') {
+      schema['enabled_on'] = {templates: schema.templates};
+      delete schema.templates;
+    }
+
     return schema;
   }
 
@@ -162,7 +180,22 @@ class Schematic {
       ].join('\n'), true);
     }
 
-    const importFile = path.resolve(this.#opts.paths.schema, `${importFilename}.js`);
+    const filename = floc.match(/[^\\/]+?(?=\.\w+$)/)[0];
+
+    // if no filename, let's try to derive it from the path
+    if (!importFilename) {
+      importFilename = filename;
+    }
+
+    let importFile = path.resolve(this.#opts.paths.schema, `${importFilename}.js`);
+
+    // doesn't exist, likely schematic options instead
+    if (!fs.existsSync(importFile)) {
+      opts = importFilename;
+      importFilename = filename;
+      importFile = path.resolve(this.#opts.paths.schema, `${importFilename}.js`);
+    }
+
     const schema = this.compileSchema(importFile);
 
     const newSchema = [
@@ -236,18 +269,23 @@ ${rendered}
 };
 
 
-class SchematicObjects {
-  common = {};
-  mutations = {};
-
+class SchematicHelpers {
   constructor() {
-    this.common = require('./schema/common.js');
-    this.mutations = require('./schema/mutations.js');
+    let loader = [
+      require('./helpers/common.js'),
+      require('./helpers/methods.js'),
+    ];
+
+    for (const props of loader) {
+      for (const [key, def] of Object.entries(props)) {
+        this[key] = def;
+      }
+    }
   }
 }
 
 
 module.exports = {
   Schematic: Schematic,
-  app: new SchematicObjects(),
+  SchematicHelpers: SchematicHelpers,
 };

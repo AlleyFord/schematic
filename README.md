@@ -18,7 +18,7 @@ Schematic helps you write Shopify theme schema in JS, not JSON. You can build ar
 `npx schematic`
 
 By default, Schematic wants to be executed in the theme root and looks for schema definitions in `src/schema`. You can change this by passing arguments to the Schematic constructor, if invoking directly and not via `npx`:
-```
+```js
 const app = new Schematic({
   paths: {
     sections: './sections', // directory to look for sections
@@ -31,7 +31,7 @@ const app = new Schematic({
 Then you're free to create schema definitions, either in full, partials, or whatever else. Here's some example Schematic schema JS for a Shopify section which renders a single icon and a heading.
 
 First, some JS which exports objects we can reuse:
-```
+```js
 // ./src/schema/global.js
 
 module.exports = {
@@ -65,13 +65,13 @@ module.exports = {
         label: '16px',
       },
     ],
-    'default': '32px',
+    default: '32px',
   },
 };
 ```
 
 Then, the JS which produces the full Shopify section JSON schema:
-```
+```js
 // ./src/schema/iconAndHeading.js
 
 const global = require('./global');
@@ -119,7 +119,7 @@ module.exports = {
 ```
 
 To tie this to Shopify and tell Schematic what to build, you edit your section liquid files with a magic comment with the entry point for the schema definition.
-```
+```liquid
 // ./sections/iconAndHeading.liquid, bottom of file
 
 {%- comment -%} schematic iconAndHeading {%- endcomment -%}
@@ -128,7 +128,7 @@ To tie this to Shopify and tell Schematic what to build, you edit your section l
 This will find `./src/schema/iconAndHeading.js`, build the JSON, and either draw in the schema tag with full definition, or replace the existing schema definition with the new one.
 
 If you've named your schema and section files the same (`./src/schema/iconAndHeading.js`, `./sections/iconAndHeading.liquid`), then you can simply use:
-```
+```liquid
 {%- comment -%} schematic {%- endcomment -%}
 ```
 
@@ -140,7 +140,7 @@ The most straight-forward way to use this by installing globally (or as a dev de
 If you need more customization, or your directory structure for schema definitions is different, you can create a node executable:
 
 `touch schematic && chmod +x schematic`
-```
+```js
 // ./schematic
 
 #!/usr/bin/env node --no-warnings
@@ -230,7 +230,7 @@ Since it also sucks creating a bunch of schema from scratch for every project, S
 | textarea | `app.make('textarea')` |
 
 Using these helpers, we can significantly reduce the amount of JS we have to write:
-```
+```js
 // ./src/schema/iconAndHeading.js
 
 const { app } = require('@alleyford/schematic');
@@ -261,7 +261,7 @@ module.exports = {
 ```
 
 Sometimes you have a specific code reason to change the ID or another property for a definition, but otherwise keep the definition the same. Schematic supports some helper methods to adjust definitions on the fly:
-```
+```js
   //..
 
   settings: [
@@ -278,7 +278,7 @@ Sometimes you have a specific code reason to change the ID or another property f
 ```
 
 Or to make drawing panel schema a little easier:
-```
+```js
   //..
 
   settings: [
@@ -306,7 +306,7 @@ Or to make drawing panel schema a little easier:
 
 ## Bundling common patterns
 Sections sometimes have fields that always go together, like a `heading`, `subheading`, and `copy`. Or a reusable CTA. Instead of defining every one repeatedly, you can use the spread (`...`) operator when pulling them from a definition.
-```
+```js
 // ./src/schema/components/cta.js
 
 module.exports = [ // default export of an array of objects
@@ -344,7 +344,7 @@ module.exports = [ // default export of an array of objects
 ```
 
 Include the file in your schema, and (`...cta`) will draw in all three definitions:
-```
+```js
 // ./src/schema/iconAndHeading.js
 
 const { app } = require('@alleyford/schematic');
@@ -373,19 +373,19 @@ If you have other section schema definitions which could use the same CTA patter
 I think it's a helpful design pattern to keep most logic out of sections and offload it to snippets. Since you're auto-generating schema, it may make sense in some cases to also auto-generate the switchboard code to render section schema to its identically-named snippet.
 
 You do this by passing an argument to the magic comment, like so:
-```
+```liquid
 // ./sections/iconAndHeading.liquid, bottom of file
 
 {%- comment -%} schematic iconAndHeading writeCode {%- endcomment -%}
 ```
 
 Or if your files are named the same across schema, sections, and snippets:
-```
+```liquid
 {%- comment -%} schematic writeCode {%- endcomment -%}
 ```
 
 Running Schematic then produces the compiled schema, plus a line to render the snippet with all that schema automatically mapped:
-```
+```liquid
 {%-
 
     render 'iconAndHeading'

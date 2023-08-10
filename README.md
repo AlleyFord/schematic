@@ -189,13 +189,13 @@ Since it also sucks creating a bunch of schema from scratch for every project, S
 | input | type, [props] | Alias of `make` | `app.input('blog', {label: "Select the blog for related reading"})` |
 | prefixOptions | prefix, options | Returns array with option values prefixed | `app.prefixOptions('fill-', ['red', 'green', 'blue'])` |
 | suffixOptions | suffix, options | Returns array with option values suffixed | `app.suffixOptions('-500', ['red', 'green', 'blue'])` |
-| enumerateId | (obj|[obj, ..]), index | Returns object(s) with the id suffixed with enumeration | `app.enumerateId(app.imageSelector, 1)` `app.enumerateId(app.imageSelector, 2)` |
+| enumerateId | (obj\|[obj, ..]), index | Returns object(s) with the id suffixed with enumeration | `app.enumerateId(app.imageSelector, 1)` `app.enumerateId(app.imageSelector, 2)` |
 | changeId | obj, id | Returns object with the id property changed | `app.changeId(app.imageSelector, 'backgroundImage')` |
 | changeLabel | obj, label | Returns object with the label property changed | `app.changeLabel(app.imageSelector, 'Background image')` |
 | changeDefault | obj, default | Returns object with the default property changed | `app.changeDefault(app.number, 42)` |
 | changeLimit | obj, limit | Returns object with the limit property changed | `app.changeLimit(app.collectionsSelector, 3)` |
 | changeProperty | obj, key, value | Returns object with the property changed | `app.changeProperty(app.number, 'id', 'articleLimit')` |
-| changeProperties | (obj|[obj, ..]), props | Returns object(s) with the properties changed | `app.changeProperties(app.number, {id: 'articleLimit', default: 3})` |
+| changeProperties | (obj\|[obj, ..]), props | Returns object(s) with the properties changed | `app.changeProperties(app.number, {id: 'articleLimit', default: 3})` |
 | removeProperty | obj, key | Returns object with the property deleted | `app.removeProperty(app.productSelector, 'limit')` |
 | removeProperties | obj, keys | Returns object with the properties deleted | `app.removeProperties(app.productSelector, ['limit', 'default'])` |
 

@@ -107,7 +107,7 @@ const methods =
   },
 
   section: (name, tag = 'section') => {
-    let obj = {
+    return {
       name: name,
       tag: tag,
       presets: [

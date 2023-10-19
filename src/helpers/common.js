@@ -262,6 +262,12 @@ module.exports =
   /*
     common elements
   */
+  text: {
+    type: types.text,
+    id: 'text',
+    label: 'Text',
+  },
+
   subheading: {
     type: types.text,
     id: 'subheading',

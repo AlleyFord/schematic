@@ -403,7 +403,7 @@ Running Schematic then produces the compiled schema, plus a line to render the s
 **Note:** When building custom Shopify themes, it's strongly recommended to use the section/snippet separation pattern, and to use `writeCode` where possible to handle connecting variables to snippets as schema changes over time. Using `writeCode` will wipe out any other code in the file.
 
 ## Scaffolding pattern
-Reiterating the above, you can use Schematic to create placeholder files for this pattern to scaffold thing out when building custom sections:
+Reiterating the above, you can use Schematic to create placeholder files for this pattern to scaffold things out when building custom sections:
 `npx schematic scaffold iconAndHeading`
 
 This will create three files:

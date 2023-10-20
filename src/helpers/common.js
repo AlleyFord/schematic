@@ -257,6 +257,9 @@ module.exports =
     templates.product,
     templates.search,
   ],
+  wildcard: [
+    '*',
+  ],
 
 
   /*

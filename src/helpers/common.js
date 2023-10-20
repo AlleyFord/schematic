@@ -339,6 +339,39 @@ module.exports =
     default: '',
   },
 
+  textAlign: {
+    type: types.select,
+    id: 'text_align',
+    label: 'Text alignment',
+    options: [
+      {
+        value: 'left',
+        label: 'Left',
+      },
+      {
+        value: 'center',
+        label: 'Center',
+      },
+      {
+        value: 'right',
+        label: 'Right',
+      },
+      {
+        value: 'justify',
+        label: 'Justify',
+      },
+      {
+        value: 'start',
+        label: 'Start',
+      },
+      {
+        value: 'end',
+        label: 'End',
+      },
+    ],
+    default: 'left',
+  },
+
   orientation: {
     type: types.radio,
     id: 'orientation',

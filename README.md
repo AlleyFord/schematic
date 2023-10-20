@@ -159,6 +159,19 @@ app.run();
 
 Then when you want to build, run the command `./schematic`.
 
+### Using the built-in executable
+The best way to run this is `npx schematic`. If you need to apply options, like verbosity or paths, you can set them in your environment:
+
+| Variable | Example value |
+| --- | --- |
+| SCHEMATIC_VERBOSE | `0` or `1` |
+| SCHEMATIC_PATH_CONFIG | Path to to the Shopify `config/` directory |
+| SCHEMATIC_PATH_SECTIONS | Path to to the Shopify `sections/` directory |
+| SCHEMATIC_PATH_SNIPPETS | Path to to the Shopify `snippets/` directory |
+| SCHEMATIC_PATH_SCHEMA | Path to to the directory with our schema definitions |
+
+An example command to run Schematic without verbose output and a `schema` directory out of the Shopify theme root: `SCHEMATIC_VERBOSE=0 SCHEMATIC_PATH_SCHEMA=../src/schema npx schematic`
+
 ## Built-in components and functions
 Since it also sucks creating a bunch of schema from scratch for every project, Schematic comes with some nice generic definitions and helper methods to use out of the box. The `app` variable derived from the package will contain everything you can use. We'll tie this together at the end to show it in use.
 
@@ -172,12 +185,14 @@ Since it also sucks creating a bunch of schema from scratch for every project, S
 | Method or property | Arguments | Description | Example |
 | --- | --- | --- | --- |
 | section | name, [tag] | Returns starter object for section schema (name, preset name, and optionally tag) | `...app.section('Icon and heading', 'div')` |
+| option | id, label | Returns option object | `app.option('text-left', 'Left align')` |
 | types | | Returns object of camelCase input types | `app.types.bgColor; // returns "color_background"` |
 | templates | | Returns object of camelCase template names | `app.templates.activateAccount; // returns "customers/activate_account"` |
 | common | | Returns object of common, pre-build generic inputs | `app.common.colorBackgroundSelector` |
 | normalTemplates | | Returns an array of normal templates (article, index, page, product, blog, collection, collection list, gift card) | `app.normalTemplates` |
 | allTemplates | | Returns an array of all Shopify templates | `app.allTemplates` |
 | font | | Sidebar input object for selecting font style (sans, serif, script) | `app.font` |
+| textAlign | | Sidebar input object for selecting text alignment (left, center, right, justify, start, end) | `app.textAlign` |
 | orientation | | Sidebar input object for selecting orientation (left, right) | `app.orientation` |
 | imageStyle | | Sidebar input object for selecting image style (cover, full) | `app.imageStyle` |
 | defaults | | Contains objects for often repeated blank values | `options: [app.defaults.blank, ...]` |
@@ -218,6 +233,7 @@ Since it also sucks creating a bunch of schema from scratch for every project, S
 | imageSelector | imagePicker, `app.make('image')` |
 | subheading | `app.make('subheading')` |
 | heading | `app.make('heading')` |
+| text | `app.make('text')` |
 | copy | `app.make('copy')` |
 | html | `app.make('html')` |
 | liquid | `app.make('liquid')` |
@@ -245,14 +261,8 @@ module.exports = {
       label: 'Icon',
       options: [
         app.defaults.none,
-        {
-          label: 'Heart',
-          value: 'heart',
-        },
-        {
-          label: 'Fire',
-          value: 'fire',
-        },
+        app.option('heart', 'Heart icon'),
+        app.option('fire', 'Fire icon'),
       ],
     }),
     global.iconWidth,

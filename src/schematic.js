@@ -25,6 +25,15 @@ class Schematic {
     }
   }
 
+  envDefaults() {
+    if ([true, 'true', 1, '1'].includes(process.env.SCHEMATIC_VERBOSE)) this.#opts.verbose = true;
+    else this.#opts.verbose = false;
+
+    if (process.env.SCHEMATIC_PATH_CONFIG) this.#opts.paths.config = String(process.env.SCHEMATIC_PATH_CONFIG).trim();
+    if (process.env.SCHEMATIC_PATH_SECTIONS) this.#opts.paths.sections = String(process.env.SCHEMATIC_PATH_SECTIONS).trim();
+    if (process.env.SCHEMATIC_PATH_SNIPPETS) this.#opts.paths.snippets = String(process.env.SCHEMATIC_PATH_SNIPPETS).trim();
+    if (process.env.SCHEMATIC_PATH_SCHEMA) this.#opts.paths.schema = String(process.env.SCHEMATIC_PATH_SCHEMA).trim();
+  }
 
   out(v, error) {
     const isError = typeof error !== 'undefined' && error;

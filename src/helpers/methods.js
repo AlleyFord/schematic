@@ -88,6 +88,13 @@ const methods =
     return {...range, ...props};
   },
 
+  option: (value, label) => {
+    return {
+      value: value,
+      label: label,
+    };
+  },
+
   header: (content, info) => {
     return methods.sidebar('header', content, info);
   },

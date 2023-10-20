@@ -2,6 +2,7 @@
 const { Schematic } = require('../src/schematic.js');
 
 const app = new Schematic();
+app.envDefaults(); // looks at env vars to determine opts
 const [ command, arg ] = app.commands();
 
 if (command) {

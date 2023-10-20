@@ -2,4 +2,16 @@
 const { Schematic } = require('../src/schematic.js');
 
 const app = new Schematic();
-app.run();
+const [ command, arg ] = app.commands();
+
+if (command) {
+  if (command === 'scaffold') {
+    if (!arg) app.exit(`scaffold requires a filename [section-name]`);
+
+    app.scaffold(arg);
+  }
+
+  else app.exit(`command not recognized`);
+}
+
+else app.run();

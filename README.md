@@ -402,6 +402,19 @@ Running Schematic then produces the compiled schema, plus a line to render the s
 
 **Note:** When building custom Shopify themes, it's strongly recommended to use the section/snippet separation pattern, and to use `writeCode` where possible to handle connecting variables to snippets as schema changes over time. Using `writeCode` will wipe out any other code in the file.
 
+## Scaffolding pattern
+Reiterating the above, you can use Schematic to create placeholder files for this pattern to scaffold thing out when building custom sections:
+`npx schematic scaffold iconAndHeading`
+
+This will create three files:
+```
+./sections/iconAndHeader.liquid
+./snippets/iconAndHeader.liquid
+./src/schema/iconAndHeader.js
+```
+
+The section file will contain the magic comment to make Schematic work, the snippet will be blank, and the schema file will contain code to include the Schematic helper methods and types.
+
 ## Other ways to use
 The approach is simple and can be worked into whatever setup you have for dev. Because it writes back to the existing `.liquid` files, be wary of infinite loops when including this in an automatic build step.
 

@@ -6,8 +6,9 @@ const path = require('path');
 class Schematic {
   #opts = {
     paths: {
-      sections: './sections',
       config: './config',
+      sections: './sections',
+      snippets: './snippets',
       schema: './src/schema',
     },
     verbose: true,
@@ -76,6 +77,42 @@ class Schematic {
     }
     else {
       this.out(`nothing to do\n`);
+    }
+  }
+
+
+  commands() {
+    return (process.argv || []).slice(2);
+  }
+  exit(v) {
+    console.log(v);
+    process.exit();
+  }
+
+  async scaffold(filename) {
+    filename = filename.replace(/(\.js|\.liquid|[^a-z0-9\-\_])/g, '');
+
+    const files = {
+      section: `${this.#opts.paths.sections}/${filename}.liquid`,
+      snippet: `${this.#opts.paths.snippets}/${filename}.liquid`,
+      schema: `${this.#opts.paths.schema}/${filename}.js`,
+    };
+
+    for (const [type, file] of Object.entries(files)) {
+      const floc = path.resolve(file);
+      let content = '';
+
+      if (fs.existsSync(floc)) {
+        this.out(`schematic: scaffold: file exists: ${floc}`, true);
+        continue;
+      }
+
+      this.out(`schematic: scaffold: creating ${type}: ${floc}\n`);
+
+      if (type === 'section') content = `{%- comment -%} schematic writeCode {%- endcomment -%}\n`;
+      if (type === 'schema') content = `const { app } = require('@alleyford/schematic');\n\n\nmodule.exports = {\n  name: "",\n  settings: [],\n  blocks: [],\n};\n`;
+
+      await fs.writeFile(floc, content);
     }
   }
 

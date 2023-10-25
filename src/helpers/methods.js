@@ -21,15 +21,22 @@ const methods =
   },
   suffixOptions: (suffix, options) => {
     let newOpts = [];
+    let obj = options;
+    let flag = false;
 
-    for (const opt of options) {
+    if (options.hasOwnProperty('options')) {
+      obj = options.options;
+      flag = true;
+    }
+
+    for (const opt of obj) {
       newOpts.push({
         value: `${opt.value}${suffix}`,
         label: opt.label,
       });
     }
 
-    return newOpts;
+    return flag ? {...options, ...{options: newOpts}} : newOpts;
   },
 
   enumerateId: (obj, index) => {

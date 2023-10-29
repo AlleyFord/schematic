@@ -92,7 +92,7 @@ const methods =
     return obj;
   },
 
-  makeRange: (props) => {
+  makeRange: (props) => { // deprecated
     let range = {
       type: 'range',
       id: 'range',
@@ -142,26 +142,35 @@ const methods =
 
   // factory thing for components
   // app.make('articleSelector', {id: 'test', default: 'test'})
+  // app.make(app.common.input, {...})
+  // app.make(app.urlPicker, {...})
   input: function(type, props) {
     return methods.make(type, props);
   },
   make: function(type, props = {}) {
     if (type === 'undefined') return null;
-
     let common = {};
 
-    // molecule
-    if (this.common[type]) common = this.common[type];
+    // json was passed directly. just apply the properties
+    if (typeof type === 'object') {
+      common = {...type};
+    }
 
-    // atom
-    else if (this.types[type]) common = {
-      type: this.types[type],
-      id: this.types[type],
-      label: this.types[type].charAt(0).toUpperCase() + this.types[type].slice(1),
-    };
+    // more basic type was passed
+    else {
+      // prefer molecule
+      if (this.common[type]) common = this.common[type];
 
-    // full blown organism? i don't know
-    else if (this[type]) common = {...this[type]};
+      // fallback atom
+      else if (this.types[type]) common = {
+        type: this.types[type],
+        id: this.types[type],
+        label: this.types[type].charAt(0).toUpperCase() + this.types[type].slice(1),
+      };
+
+      // full blown organism? i don't know
+      else if (this[type]) common = {...this[type]};
+    }
 
     return {...common, ...props};
   },

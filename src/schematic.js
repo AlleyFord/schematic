@@ -9,6 +9,7 @@ class Schematic {
       config: './config',
       sections: './sections',
       snippets: './snippets',
+      locales: './locales',
       schema: './src/schema',
     },
     verbose: true,
@@ -61,21 +62,29 @@ class Schematic {
     }
   }
 
-  async buildConfig() {
-    this.out(`schematic: checking for ${this.#opts.paths.schema}/settings_schema.js...`);
+  async buildLocales() {
+    const localePath = `${this.#opts.paths.schema}/locales`;
+    this.out(`schematic: checking for locale definitions in ${localePath}...`);
 
-    const settingsSchema = path.resolve(this.#opts.paths.schema, `settings_schema.js`);
+    if (!fs.existsSync(localePath)) {
+      this.out(`nothing to do\n`);
+      return;
+    }
 
-    if (fs.existsSync(settingsSchema)) {
-      this.out(`uses schematic. generating schema...`);
+    this.out(`exists. generating locales...`);
 
-      const schema = this.compileSchema(settingsSchema);
+    await fs.readdirSync(localePath).forEach(async sourceFile => {
+      const localeFilename = sourceFile.replace('.js', '.json');
+      const sourceLocalePath = path.resolve(localePath, sourceFile);
+      const targetLocalePath = path.resolve(this.#opts.paths.locales, localeFilename);
+
+      const schema = this.compileSchema(sourceLocalePath);
 
       if (schema) {
         try {
           const parsed = JSON.stringify(schema, null, 2);
 
-          await fs.writeFile(path.resolve(this.#opts.paths.config, 'settings_schema.json'), parsed);
+          await fs.writeFile(targetLocalePath, parsed);
         }
         catch(err) {
           return this.out(`error writing to file: ${err}`, true);
@@ -83,9 +92,34 @@ class Schematic {
 
         this.out(`ok\n`);
       }
-    }
-    else {
+    });
+  }
+
+  async buildConfig() {
+    this.out(`schematic: checking for ${this.#opts.paths.schema}/settings_schema.js...`);
+
+    const settingsSchema = path.resolve(this.#opts.paths.schema, `settings_schema.js`);
+
+    if (!fs.existsSync(settingsSchema)) {
       this.out(`nothing to do\n`);
+      return;
+    }
+
+    this.out(`uses schematic. generating schema...`);
+
+    const schema = this.compileSchema(settingsSchema);
+
+    if (schema) {
+      try {
+        const parsed = JSON.stringify(schema, null, 2);
+
+        await fs.writeFile(path.resolve(this.#opts.paths.config, 'settings_schema.json'), parsed);
+      }
+      catch(err) {
+        return this.out(`error writing to file: ${err}`, true);
+      }
+
+      this.out(`ok\n`);
     }
   }
 
@@ -130,6 +164,7 @@ class Schematic {
   async run(files) {
     await this.preCheck();
     await this.buildConfig();
+    await this.buildLocales();
 
     this.out(`schematic: scanning for schema in ${this.#opts.paths.sections}\n`);
 

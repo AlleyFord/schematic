@@ -49,18 +49,21 @@ const methods =
     return methods.changeId(obj, `${obj.id}_${index}`);
   },
 
-  changeId: (obj, id) => {
-    return methods.changeProperty(obj, 'id', id);
+  prefixIds: (prefix, obj) => methods.prefixId(prefix, obj),
+  prefixId: (prefix, obj) => {
+    if (Array.isArray(obj)) {
+      return obj.map(item => {
+        return methods.prefixId(prefix, item);
+      });
+    }
+
+    return methods.changeId(obj, `${prefix}${obj.id}`);
   },
-  changeLabel: (obj, label) => {
-    return methods.changeProperty(obj, 'label', label);
-  },
-  changeDefault: (obj, def) => {
-    return methods.changeProperty(obj, 'default', def);
-  },
-  changeLimit: (obj, limit) => {
-    return methods.changeProperty(obj, 'limit', limit);
-  },
+
+  changeId: (obj, id) => methods.changeProperty(obj, 'id', id),
+  changeLabel: (obj, label) => methods.changeProperty(obj, 'label', label),
+  changeDefault: (obj, def) => methods.changeProperty(obj, 'default', def),
+  changeLimit: (obj, limit) => methods.changeProperty(obj, 'limit', limit),
 
   changeProperty: (obj, key, value) => {
     let newObj = {...obj};
@@ -109,13 +112,8 @@ const methods =
     };
   },
 
-  header: (content, info) => {
-    return methods.sidebar('header', content, info);
-  },
-  paragraph: content => {
-    return methods.sidebar('paragraph', content);
-  },
-
+  header: (content, info) => methods.sidebar('header', content, info),
+  paragraph: content => methods.sidebar('paragraph', content),
   sidebar: (type, content, info) => {
     let obj = {
       type: type,

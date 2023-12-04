@@ -21,8 +21,11 @@ By default, Schematic wants to be executed in the theme root and looks for schem
 ```js
 const app = new Schematic({
   paths: {
-    sections: './sections', // directory to look for sections
-    schema: './src/schema', // directory with schema definitions
+    config: './config', // directory for shopify configuration files
+    sections: './sections', // directory for section files
+    snippets: './snippets', // directory for snippet files
+    locales: './locales', // directory for locale files
+    schema: './src/schema', // directory with all of the schema definitions for schematic to consume
   },
   verbose: true, // show details in console if true, otherwise silent except on error
 });
@@ -272,7 +275,7 @@ module.exports = {
 
 Sometimes you have a specific code reason to change the ID or another property for a definition, but otherwise keep the definition the same. Schematic supports some helper methods to adjust definitions on the fly:
 ```js
-  //..
+  //...
 
   settings: [
     app.changeId(app.heading, 'heading_left'),
@@ -284,12 +287,12 @@ Sometimes you have a specific code reason to change the ID or another property f
     }),
   ],
 
-  //..
+  //...
 ```
 
 Or to make drawing panel schema a little easier:
 ```js
-  //..
+  //...
 
   settings: [
     app.paragraph("Icons and headings really make the world go 'round."),
@@ -310,7 +313,7 @@ Or to make drawing panel schema a little easier:
     }),
   ],
 
-  //..
+  //...
 };
 ```
 
@@ -427,6 +430,62 @@ The section file will contain the magic comment to make Schematic work, the snip
 
 ## Other ways to use
 The approach is simple and can be worked into whatever setup you have for dev. Because it writes back to the existing `.liquid` files, be wary of infinite loops when including this in an automatic build step.
+
+
+## Using Schematic for settings_schema.json
+Schematic will automatically write `config/settings_schema.json` for you if it detects the presence of a `settings_schema.js` file in your `schema` directory.
+
+The file should export an array of objects that match what would be manually defined in `settings_schema.json`:
+
+```js
+// ./src/schema/settings_schema.js
+
+const { app } = require('@alleyford/schematic');
+
+module.exports = [
+  {
+    name: 'theme_info',
+    theme_name: 'Magic fungus',
+    //...
+  },
+  {
+    name: 'Globals',
+    settings: {
+      app.header('Free shipping threshold'),
+      app.make(app.types.range, {
+        id: 'free_shipping_threshold',
+        label: 'Amount to trigger free shipping',
+        min: 0,
+        max: 500,
+        step: 10,
+        unit: '$',
+        default: 150,
+      }),
+      //...
+    },
+  },
+  //...
+];
+```
+
+## Using Schematic for localization features
+Schematic will automatically write locale JSON for you if it detects the presence of `locales/[lang].js` in your `schema` directory.
+
+The files should export an object that matches what would be manually defined in a locale file:
+
+```js
+// ./src/schema/locales/en.js
+
+module.exports = {
+  cart: {
+    error: "Something went wrong -- please try again.",
+    quantityError: "You may only add {{ quantity }} of this item to your cart.",
+    //...
+  },
+  //...
+};
+```
+
 
 ## Thanks
 David Warrington for initial inspiration: [liquid-schema-plugin](https://github.com/davidwarrington/liquid-schema-plugin)

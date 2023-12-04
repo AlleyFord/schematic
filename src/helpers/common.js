@@ -1,6 +1,8 @@
 // theme editor input types
 const types = {
   // basic
+  bool: 'checkbox',
+  boolean: 'checkbox',
   checkbox: 'checkbox',
   number: 'number',
   radio: 'radio',

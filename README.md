@@ -513,7 +513,7 @@ window.app.copy = {
 };
 ```
 
-In the above example, `window.app.copy` is coming from the Schematic configuration option for `localization.expression`. The ``%%json%%` value in that expression is needed and will be replaced with the localization strings.
+In the above example, `window.app.copy` is coming from the Schematic configuration option for `localization.expression`. The `%%json%%` value in that expression is needed and will be replaced with the localization strings.
 
 ## Thanks
 David Warrington for initial inspiration: [liquid-schema-plugin](https://github.com/davidwarrington/liquid-schema-plugin)

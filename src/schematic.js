@@ -12,10 +12,15 @@ class Schematic {
       locales: './locales',
       schema: './src/schema',
     },
+    localization: {
+      file: './snippets/p-app-localization.liquid',
+      expression: 'window.app.copy = %%json%%;', // final semicolon is important
+    },
     verbose: true,
   };
 
   #refSchemaEx = /{%\-?\s*comment\s*\-?%}\s*schematic\s*['"]?([^'"\s{]+)?['"]?\s*(.*)?{%\-?\s*endcomment\s*\-?%}/mi;
+  #localizationEx = /{%\-?\s*comment\s*\-?%}\s*schematicLocalization\s*{%\-?\s*endcomment\s*\-?%}/mi;
   #replaceSchemaEx = /({%\-?\s*schema\s*\-?%}[\s\S]*{%\-?\s*endschema\s*\-?%})/mig;
 
   //loader = require.resolve('./webpackLoader.js');
@@ -62,6 +67,96 @@ class Schematic {
     }
   }
 
+  async writeLocalization() {
+    this.out(`schematic: attempting to write localization in ${this.#opts.localization.file}...`);
+
+    const localizationFile = path.resolve(this.#opts.localization.file);
+
+    if (!fs.existsSync(localizationFile)) {
+      this.out(`nothing to do\n`);
+      return;
+    }
+
+    let contents = false, comment = '';
+
+    try {
+      contents = await fs.readFile(localizationFile, 'utf8');
+
+      // no schematic tag to replace
+      if (!this.#localizationEx.test(contents)) {
+        return this.out(`${localizationFile}: no schematic code\n`);
+      }
+      else {
+        // capture the comment to rewrite and preserve author's stylistic preferences
+        comment = contents.match(this.#localizationEx)[0];
+      }
+
+      if (!contents) {
+        return this.out(`${localizationFile}: no file contents\n`);
+      }
+    }
+    catch(err) {
+      return this.out(`${localizationFile}: ${err}`, true);
+    }
+
+    let defaultLocale;
+
+    fs.readdirSync(this.#opts.paths.locales).every(file => {
+      if (/default\.json$/.test(file)) {
+        const localePath = path.resolve(this.#opts.paths.locales, file);
+
+        try {
+          defaultLocale = JSON.parse(fs.readFileSync(localePath, 'utf8'));
+        }
+        catch(err) {
+          return this.out(`error reading & parsing default locale ${localePath}: ${err}`, true);
+        }
+      }
+
+      return true;
+    });
+
+    const reducePaths = (obj = {}, prev = '') => {
+      return Object.entries(obj).reduce((path, [k, v]) => {
+        const fpath = prev ? `${prev}.${k}` : k;
+        return (v && typeof v === 'object' && !Array.isArray(v))
+          ? path.concat(reducePaths(v, fpath))
+          : path.concat(fpath);
+      }, []);
+    };
+
+    let localeExpr = '';
+
+    reducePaths(defaultLocale).forEach((k, i, a) => {
+      const delim = i === a.length - 1 ? '' : ',';
+      localeExpr += `  "${k}": {{ '${k}' | t | json }}${delim}\n`;
+    });
+
+    localeExpr = this.#opts.localization.expression.replace('%%json%%', `{\n${localeExpr}}`);
+
+    const replaceLocalizationExprEx = this.#opts.localization.expression.replaceAll('.', '\\.').replaceAll(' ', '\\ ').replace('%%json%%', '{.*?}');
+    const replaceLocalizationCommentEx = '{%\\-?\\s*comment\\s*\\-?%}\\s*schematicLocalization\\s*{%\\-?\\s*endcomment\\s*\\-?%}\\s*?';
+    const replaceLocalizationEx = new RegExp(replaceLocalizationCommentEx + replaceLocalizationExprEx, 'mis');
+
+    try {
+      let newContents;
+
+      if (replaceLocalizationEx.test(contents)) {
+        newContents = contents.replace(replaceLocalizationEx, comment + `\n` + localeExpr);
+      }
+      else {
+        newContents = contents.replace(new RegExp(replaceLocalizationCommentEx, 'mis'), comment + `\n` + localeExpr);
+      }
+
+      await fs.writeFile(localizationFile, newContents);
+    }
+    catch(err) {
+      return this.out(`couldn't write localization: ${err}`, true);
+    }
+
+    return this.out(`ok\n`);
+  }
+
   async buildLocales() {
     const localePath = `${this.#opts.paths.schema}/locales`;
     this.out(`schematic: checking for locale definitions in ${localePath}...`);
@@ -73,7 +168,7 @@ class Schematic {
 
     this.out(`exists. generating locales...`);
 
-    await fs.readdirSync(localePath).forEach(async sourceFile => {
+    fs.readdirSync(localePath).forEach(sourceFile => {
       const localeFilename = sourceFile.replace('.js', '.json');
       const sourceLocalePath = path.resolve(localePath, sourceFile);
       const targetLocalePath = path.resolve(this.#opts.paths.locales, localeFilename);
@@ -83,8 +178,7 @@ class Schematic {
       if (schema) {
         try {
           const parsed = JSON.stringify(schema, null, 2);
-
-          await fs.writeFile(targetLocalePath, parsed);
+          fs.writeFileSync(targetLocalePath, parsed);
         }
         catch(err) {
           return this.out(`error writing to file: ${err}`, true);
@@ -93,6 +187,8 @@ class Schematic {
         this.out(`ok\n`);
       }
     });
+
+    return this.writeLocalization();
   }
 
   async buildConfig() {

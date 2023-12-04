@@ -5,6 +5,9 @@ Attempting to be more organized about feature changes between versions.
 ## Unreleased
 - None
 
+## 2.1.1
+- Added ability to automatically write localization files for client-side code. See README
+
 ## 2.1.0
 - `app.types.boolean` alias
 - Added `prefixId` for prefixing an object or array of objects

@@ -27,6 +27,10 @@ const app = new Schematic({
     locales: './locales', // directory for locale files
     schema: './src/schema', // directory with all of the schema definitions for schematic to consume
   },
+  localization: {
+    file: './snippets/p-app-localization.liquid', // file to scan to replace magic comment with localization strings
+    expression: 'window.app.copy = %%json%%;', // the expression to write for localization strings
+  },
   verbose: true, // show details in console if true, otherwise silent except on error
 });
 ```
@@ -486,6 +490,30 @@ module.exports = {
 };
 ```
 
+Schematic will also try to find a magic comment and replace it with localized strings. This works as follows:
+1. Schematic looks at the `localization.file` and scans for a liquid comment with `schematicLocalization`
+2. It then writes JSON into the `localization.expression` string so client side code can consume it
+
+Before running Schematic:
+```liquid
+// ./snippets/p-app-localization.liquid
+
+{%- comment -%} schematicLocalization {%- endcomment -%}
+```
+
+After:
+```liquid
+// ./snippets/p-app-localization.liquid
+
+{%- comment -%} schematicLocalization {%- endcomment -%}
+window.app.copy = {
+  "cart.error": {{ 'cart.error' | t | json }},
+  "cart.quantityError": {{ 'cart.quantityError' | t | json }},
+  // ...
+};
+```
+
+In the above example, `window.app.copy` is coming from the Schematic configuration option for `localization.expression`. The ``%%json%%` value in that expression is needed and will be replaced with the localization strings.
 
 ## Thanks
 David Warrington for initial inspiration: [liquid-schema-plugin](https://github.com/davidwarrington/liquid-schema-plugin)

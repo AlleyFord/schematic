@@ -194,7 +194,7 @@ module.exports =
     common shopify inputs
   */
   articleSelector: common.articleSelector,
-  articlePicker: common.articleselector,
+  articlePicker: common.articleSelector,
 
   blogSelector: common.blogSelector,
   blogPicker: common.blogSelector,
@@ -235,6 +235,8 @@ module.exports =
   backgroundImageSelector: common.backgroundImageSelector,
   backgroundImagePicker: common.backgroundImageSelector,
   backgroundImage: common.backgroundImageSelector,
+  bgImageSelector: common.backgroundImageSelector,
+  bgImagePicker: common.backgroundImageSelector,
   bgImage: common.backgroundImageSelector,
 
   fontSelector: common.fontSelector,

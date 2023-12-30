@@ -81,6 +81,34 @@ const methods =
     return {...obj, ...props};
   },
 
+  removeType: (arr = [], type) => {
+    return methods.arrayRemoveNotMatching(arr, 'type', type);
+  },
+  removeTypes: (arr = [], types = []) => {
+    return methods.arrayRemoveNotMatching(arr, 'type', types);
+  },
+  removeId: (arr = [], id) => {
+    return methods.arrayRemoveNotMatching(arr, 'id', id);
+  },
+  removeIds: (arr = [], ids = []) => {
+    return methods.arrayRemoveNotMatching(arr, 'id', ids);
+  },
+
+  arrayRemoveNotMatching: (arr = [], key, values) => {
+    if (Array.isArray(values)) {
+      for (const value of values) {
+        arr = methods.arrayRemoveNotMatching(arr, key, value);
+      }
+
+      return arr;
+    }
+    else {
+      return arr.filter(obj => {
+        return obj[key] !== values;
+      });
+    }
+  },
+
   removeProperty: (obj, key) => {
     let newObj = {...obj};
     delete newObj[key];
@@ -135,6 +163,11 @@ const methods =
         },
       ],
     };
+  },
+
+  _: (k) => methods.translate(k),
+  translate: (k) => {
+    return `t:${k}`;
   },
 
 

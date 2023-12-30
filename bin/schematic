@@ -12,6 +12,12 @@ if (command) {
     app.scaffold(arg);
   }
 
+  else if (command === 'section') {
+    if (!arg) app.exit(`section requires a file path`);
+
+    app.runSection(arg);
+  }
+
   else app.exit(`command not recognized`);
 }
 

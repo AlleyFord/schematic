@@ -23,6 +23,8 @@ class Schematic {
   #localizationEx = /{%\-?\s*comment\s*\-?%}\s*schematicLocalization\s*{%\-?\s*endcomment\s*\-?%}/mi;
   #replaceSchemaEx = /({%\-?\s*schema\s*\-?%}[\s\S]*{%\-?\s*endschema\s*\-?%})/mig;
 
+  #preCheckOk = false;
+
   //loader = require.resolve('./webpackLoader.js');
 
   constructor(opts = null) {
@@ -49,6 +51,8 @@ class Schematic {
   }
 
   async preCheck() {
+    if (this.#preCheckOk) return;
+
     let statCheck = true;
     let fails = [];
 
@@ -65,6 +69,8 @@ class Schematic {
       console.log('could not find required directories from this path. run in the shopify theme root? (' + fails.join(', ') + ')');
       process.exit();
     }
+
+    this.#preCheckOk = true;
   }
 
   async writeLocalization() {
@@ -250,12 +256,74 @@ class Schematic {
 
       if (type === 'section') content = `{%- comment -%} schematic writeCode {%- endcomment -%}\n`;
       if (type === 'snippet') content = `{%- liquid\n\n\n\n-%}\n<div class="${filename}">\n</div>\n`;
-      if (type === 'schema') content = `const { app } = require('@alleyford/schematic');\n\n\nmodule.exports = {\n  ...app.section('Boilerplate'),\n  enabled_on: {\n    templates: app.wildcard,\n    groups: app.wildcard,\n  },\n  settings: [],\n  blocks: [],\n};\n`;
+      if (type === 'schema') content = `const { app } = require('@alleyford/schematic');\n\n\nmodule.exports = {\n  ...app.section('Boilerplate'),\n  enabled_on: {\n    templates: app.wildcard,\n    groups: app.wildcard,\n  },\n  settings: [],\n  blocks: [\n    {type: '@app'},\n  ],\n};\n`;
 
       await fs.writeFile(floc, content);
     }
   }
 
+
+  async resolvePath(file, defaultDir) {
+    let floc = false;
+    let fstat = false;
+
+    // full path or relative correct from execution path
+    try {
+      floc = path.resolve(file);
+      fstat = await fs.stat(floc);
+    }
+
+    // from a simple filename or in a glob from relative path
+    catch(e) {
+      floc = path.resolve(this.#opts.paths.sections, file);
+      fstat = await fs.stat(floc);
+    }
+
+    return {
+      floc: floc,
+      fstat: fstat,
+    };
+  }
+
+
+  async runSection(file) {
+    await this.preCheck();
+
+    const { floc, fstat } = await this.resolvePath(file, this.#opts.paths.sections);
+
+    if (fstat.isFile() && path.extname(file) === '.liquid') {
+      let contents = false;
+
+      try {
+        contents = await fs.readFile(floc, 'utf8');
+
+        // no schematic tag to replace
+        if (!this.#refSchemaEx.test(contents)) {
+          return this.out(`${floc}: no schematic code\n`);
+        }
+        if (!contents) {
+          return this.out(`${floc}: no file contents\n`);
+        }
+      }
+      catch(err) {
+        this.out(`${floc}: ${err}`, true);
+      }
+
+      try {
+        const newContents = await this.buildSchema(floc, contents);
+
+        if (newContents) {
+          await fs.writeFile(floc, newContents);
+        }
+        else {
+          this.out(`${floc}: new contents failed\n`);
+        }
+      }
+      catch(err) {
+        this.out(`${floc}: ${err}`, true);
+      }
+    }
+  }
 
   async run(files) {
     await this.preCheck();
@@ -269,41 +337,7 @@ class Schematic {
     }
 
     return Promise.all(files.map(async file => {
-      const floc = path.resolve(this.#opts.paths.sections, file);
-      const fstat = await fs.stat(floc);
-
-      if (fstat.isFile() && path.extname(file) === '.liquid') {
-        let contents = false;
-
-        try {
-          contents = await fs.readFile(floc, 'utf8');
-
-          // no schematic tag to replace
-          if (!this.#refSchemaEx.test(contents)) {
-            return this.out(`${floc}: no schematic code\n`);
-          }
-          if (!contents) {
-            return this.out(`${floc}: no file contents\n`);
-          }
-        }
-        catch(err) {
-          this.out(`${floc}: ${err}`, true);
-        }
-
-        try {
-          const newContents = await this.buildSchema(floc, contents);
-
-          if (newContents) {
-            await fs.writeFile(floc, newContents);
-          }
-          else {
-            this.out(`${floc}: new contents failed\n`);
-          }
-        }
-        catch(err) {
-          this.out(`${floc}: ${err}`, true);
-        }
-      }
+      await this.runSection(file);
     }))
     .catch(err => {
       this.out(`${err}`, true);
@@ -375,6 +409,10 @@ class Schematic {
     }
 
     const schema = this.compileSchema(importFile);
+
+    if (schema === false) {
+      return this.out(`error compiling schema. abandoning`);
+    }
 
     const newSchema = [
       '{%- schema -%}',

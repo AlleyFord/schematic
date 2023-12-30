@@ -435,6 +435,11 @@ The section file will contain the magic comment to make Schematic work, the snip
 ## Other ways to use
 The approach is simple and can be worked into whatever setup you have for dev. Because it writes back to the existing `.liquid` files, be wary of infinite loops when including this in an automatic build step.
 
+### Running on a single section file
+Schematic supports [running](https://github.com/AlleyFord/schematic/issues/4) on a single section file instead of scanning the entire contents of the project. To invoke, run `npx schematic section (path/to/file)`. This can also be invoked in code through `Schematic.runSection(filePath)`.
+
+Schematic has planned support for running on individual configuration and localization files.
+
 
 ## Using Schematic for settings_schema.json
 Schematic will automatically write `config/settings_schema.json` for you if it detects the presence of a `settings_schema.js` file in your `schema` directory.
@@ -514,6 +519,7 @@ window.app.copy = {
 ```
 
 In the above example, `window.app.copy` is coming from the Schematic configuration option for `localization.expression`. The `%%json%%` value in that expression is needed and will be replaced with the localization strings.
+
 
 ## Thanks
 David Warrington for initial inspiration: [liquid-schema-plugin](https://github.com/davidwarrington/liquid-schema-plugin)

@@ -377,9 +377,9 @@ class Schematic {
     const schema = this.compileSchema(importFile);
 
     const newSchema = [
-      '{%- schema -%}',
+      '{% schema %}',
         JSON.stringify(schema, null, 2),
-      '{%- endschema -%}',
+      '{% endschema %}',
     ].join('\n');
 
     let newContents;

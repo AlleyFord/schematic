@@ -267,15 +267,25 @@ class Schematic {
     let floc = false;
     let fstat = false;
 
+    const defaultPath = defaultDir ?? this.#opts.paths.sections;
+
     // full path or relative correct from execution path
     try {
       floc = path.resolve(file);
       fstat = await fs.stat(floc);
+
+      // if the schema file, resolve back to the liquid file
+      if (floc.includes(this.#opts.paths.schema.replace('./', '/'))) {
+        let [, filename] = file.match(/.*\/(.+)$/);
+
+        floc = path.resolve(defaultPath, filename.replace(/\.[mc]?js$/, '.liquid'));
+        fstat = await fs.stat(floc);
+      }
     }
 
     // from a simple filename or in a glob from relative path
     catch(e) {
-      floc = path.resolve(this.#opts.paths.sections, file);
+      floc = path.resolve(defaultPath, file);
       fstat = await fs.stat(floc);
     }
 
@@ -291,7 +301,7 @@ class Schematic {
 
     const { floc, fstat } = await this.resolvePath(file, this.#opts.paths.sections);
 
-    if (fstat.isFile() && path.extname(file) === '.liquid') {
+    if (fstat.isFile()) {
       let contents = false;
 
       try {

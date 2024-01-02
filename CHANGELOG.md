@@ -1,12 +1,14 @@
 # Changelog
-
 Attempting to be more organized about feature changes between versions.
 
 ## TODO
 - add functions for running single locales, configs, etc
 
 ## Unreleased
--
+- n/a
+
+## 2.1.4
+- `npx schematic section path/to/file` now supports that file being a schema file (js) and not just a liquid file
 
 ## 2.1.3
 - Added `removeType` helper to easily exclude objects matching an input type, for more flexibility/reusability in building custom components

@@ -522,4 +522,5 @@ In the above example, `window.app.copy` is coming from the Schematic configurati
 
 
 ## Thanks
-David Warrington for initial inspiration: [liquid-schema-plugin](https://github.com/davidwarrington/liquid-schema-plugin)
+- David Warrington for initial inspiration: [liquid-schema-plugin](https://github.com/davidwarrington/liquid-schema-plugin)
+- [Jacob Kossman](https://github.com/jacobkossman) for contributions & feature dev

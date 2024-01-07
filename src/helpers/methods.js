@@ -153,16 +153,20 @@ const methods =
     return obj;
   },
 
-  section: (name, tag = 'section') => {
-    return {
-      name: name,
-      tag: tag,
-      presets: [
-        {
-          name: name,
-        },
-      ],
+  section: (name, props = {}) => {
+    const tag = props.tag || 'section';
+    const presets = props.presets || [
+      { name }
+    ]
+
+    let obj = {
+      name,
+      tag,
+      ...methods.make(props),
+      presets
     };
+    
+    return obj;
   },
 
   _: (k) => methods.translate(k),

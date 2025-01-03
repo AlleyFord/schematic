@@ -133,11 +133,15 @@ const methods =
     return {...range, ...props};
   },
 
-  option: (value, label) => {
-    return {
+  option: (value, label, group) => {
+    let obj = {
       value: value,
       label: label,
     };
+
+    if(typeof group !== 'undefined') obj.group = group;
+
+    return obj;
   },
 
   header: (content, info) => methods.sidebar('header', content, info),

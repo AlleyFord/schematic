@@ -37,9 +37,12 @@ const app = new Schematic({
 
 Then you're free to create schema definitions, either in full, partials, or whatever else. Here's some example Schematic schema JS for a Shopify section which renders a single icon and a heading.
 
+**Support for ES6:**
+_If your root package.json file has "type": "module", you should name your schema definition files with .cjs. Read more[ here](https://nodejs.org/docs/latest-v13.x/api/esm.html#esm_enabling)_
+
 First, some JS which exports objects we can reuse:
 ```js
-// ./src/schema/global.js
+// ./src/schema/global.js (or global.cjs)
 
 module.exports = {
   iconWidth: {

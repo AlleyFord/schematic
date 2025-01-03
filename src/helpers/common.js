@@ -40,12 +40,20 @@ const types = {
   linkList: 'link_list',
   link_list: 'link_list',
   liquid: 'liquid',
+  meta_object: "metaobject",
+  metaObject: "metaobject",
+  metaobject_list: "metaobject_list",
+  metaobjectList: "metaobject_list",
+  metaObjectList: "metaobject_list",
+  meta: "metaobject",
   page: 'page',
   product: 'product',
   products: 'product_list',
   productList: 'product_list',
   product_list: 'product_list',
   richtext: 'richtext',
+  text_alignment: "text_alignment",
+  textAlignment: "text_alignment",
   link: 'url',
   url: 'url',
   video: 'video',
@@ -184,247 +192,247 @@ const defaults = {
 
 
 module.exports =
-{
-  types: types,
-  templates: templates,
-  common: common,
-  defaults: defaults,
+  {
+    types: types,
+    templates: templates,
+    common: common,
+    defaults: defaults,
 
-  /*
-    common shopify inputs
-  */
-  articleSelector: common.articleSelector,
-  articlePicker: common.articleSelector,
+    /*
+      common shopify inputs
+    */
+    articleSelector: common.articleSelector,
+    articlePicker: common.articleSelector,
 
-  blogSelector: common.blogSelector,
-  blogPicker: common.blogSelector,
+    blogSelector: common.blogSelector,
+    blogPicker: common.blogSelector,
 
-  pageSelector: common.pageSelector,
-  pagePicker: common.pageSelector,
+    pageSelector: common.pageSelector,
+    pagePicker: common.pageSelector,
 
-  menuSelector: common.menuSelector,
-  menuPicker: common.menuSelector,
+    menuSelector: common.menuSelector,
+    menuPicker: common.menuSelector,
 
-  collectionSelector: common.collectionSelector,
-  collectionPicker: common.collectionSelector,
+    collectionSelector: common.collectionSelector,
+    collectionPicker: common.collectionSelector,
 
-  collectionsSelector: common.collectionsSelector,
-  collectionsPicker: common.collectionsSelector,
-  collectionList: common.collectionsSelector,
+    collectionsSelector: common.collectionsSelector,
+    collectionsPicker: common.collectionsSelector,
+    collectionList: common.collectionsSelector,
 
-  productSelector: common.productSelector,
-  productPicker: common.productSelector,
+    productSelector: common.productSelector,
+    productPicker: common.productSelector,
 
-  productsSelector: common.productsSelector,
-  productsPicker: common.productsSelector,
-  productList: common.productsSelector,
+    productsSelector: common.productsSelector,
+    productsPicker: common.productsSelector,
+    productList: common.productsSelector,
 
-  colorSelector: common.colorSelector,
-  colorPicker: common.colorSelector,
+    colorSelector: common.colorSelector,
+    colorPicker: common.colorSelector,
 
-  urlSelector: common.urlSelector,
-  urlPicker: common.urlSelector,
+    urlSelector: common.urlSelector,
+    urlPicker: common.urlSelector,
 
-  colorBackgroundSelector: common.colorBackgroundSelector,
-  colorBackgroundPicker: common.colorBackgroundSelector,
-  backgroundColorSelector: common.colorBackgroundSelector,
-  backgroundColorPicker: common.colorBackgroundSelector,
-  bgColorSelector: common.colorBackgroundSelector,
-  bgColorPicker: common.colorBackgroundSelector,
+    colorBackgroundSelector: common.colorBackgroundSelector,
+    colorBackgroundPicker: common.colorBackgroundSelector,
+    backgroundColorSelector: common.colorBackgroundSelector,
+    backgroundColorPicker: common.colorBackgroundSelector,
+    bgColorSelector: common.colorBackgroundSelector,
+    bgColorPicker: common.colorBackgroundSelector,
 
-  backgroundImageSelector: common.backgroundImageSelector,
-  backgroundImagePicker: common.backgroundImageSelector,
-  backgroundImage: common.backgroundImageSelector,
-  bgImageSelector: common.backgroundImageSelector,
-  bgImagePicker: common.backgroundImageSelector,
-  bgImage: common.backgroundImageSelector,
+    backgroundImageSelector: common.backgroundImageSelector,
+    backgroundImagePicker: common.backgroundImageSelector,
+    backgroundImage: common.backgroundImageSelector,
+    bgImageSelector: common.backgroundImageSelector,
+    bgImagePicker: common.backgroundImageSelector,
+    bgImage: common.backgroundImageSelector,
 
-  fontSelector: common.fontSelector,
-  fontPicker: common.fontSelector,
+    fontSelector: common.fontSelector,
+    fontPicker: common.fontSelector,
 
-  imageSelector: common.imageSelector,
-  imagePicker: common.imageSelector,
+    imageSelector: common.imageSelector,
+    imagePicker: common.imageSelector,
 
-  normalTemplates: [
-    templates.article,
-    templates.index,
-    templates.page,
-    templates.product,
-    templates.blog,
-    templates.collection,
-    templates.collections,
-    templates.giftCard,
-  ],
-  allTemplates: [
-    templates.notFound,
-    templates.article,
-    templates.blog,
-    templates.cart,
-    templates.collection,
-    templates.account,
-    templates.activateAccount,
-    templates.addresses,
-    templates.login,
-    templates.order,
-    templates.register,
-    templates.resetPassword,
-    templates.giftCard,
-    templates.index,
-    templates.collections,
-    templates.page,
-    templates.password,
-    templates.product,
-    templates.search,
-  ],
-  wildcard: [
-    '*',
-  ],
-
-
-  /*
-    common elements
-  */
-  text: {
-    type: types.text,
-    id: 'text',
-    label: 'Text',
-  },
-
-  subheading: {
-    type: types.text,
-    id: 'subheading',
-    label: 'Subheading',
-  },
-
-  heading: {
-    type: types.text,
-    id: 'heading',
-    label: 'Heading',
-  },
-
-  number: {
-    type: types.number,
-    id: 'num',
-    label: 'Number',
-  },
-
-  copy: {
-    type: types.richtext,
-    id: 'copy',
-    label: 'Copy',
-  },
-
-  html: {
-    type: types.html,
-    id: 'html',
-    label: 'Raw HTML',
-  },
-
-  liquid: {
-    type: types.liquid,
-    id: 'liquid',
-    label: 'Raw Liquid',
-  },
-
-  videoLink: {
-    type: types.videoUrl,
-    id: 'video_url',
-    label: 'Video URL',
-    accept: [
-      'vimeo',
-      'youtube',
+    normalTemplates: [
+      templates.article,
+      templates.index,
+      templates.page,
+      templates.product,
+      templates.blog,
+      templates.collection,
+      templates.collections,
+      templates.giftCard,
     ],
-  },
-
-  /*
-    theming
-  */
-  font: {
-    type: types.select,
-    id: 'font',
-    label: 'Font',
-    options: [
-      defaults.none,
-      {
-        value: 'sans',
-        label: 'Sans serif',
-      },
-      {
-        value: 'serif',
-        label: 'Serif',
-      },
-      {
-        value: 'script',
-        label: 'Script',
-      },
+    allTemplates: [
+      templates.notFound,
+      templates.article,
+      templates.blog,
+      templates.cart,
+      templates.collection,
+      templates.account,
+      templates.activateAccount,
+      templates.addresses,
+      templates.login,
+      templates.order,
+      templates.register,
+      templates.resetPassword,
+      templates.giftCard,
+      templates.index,
+      templates.collections,
+      templates.page,
+      templates.password,
+      templates.product,
+      templates.search,
     ],
-    default: '',
-  },
-
-  textAlign: {
-    type: types.select,
-    id: 'text_align',
-    label: 'Text alignment',
-    options: [
-      {
-        value: 'left',
-        label: 'Left',
-      },
-      {
-        value: 'center',
-        label: 'Center',
-      },
-      {
-        value: 'right',
-        label: 'Right',
-      },
-      {
-        value: 'justify',
-        label: 'Justify',
-      },
-      {
-        value: 'start',
-        label: 'Start',
-      },
-      {
-        value: 'end',
-        label: 'End',
-      },
+    wildcard: [
+      '*',
     ],
-    default: 'left',
-  },
 
-  orientation: {
-    type: types.radio,
-    id: 'orientation',
-    label: 'Orientation',
-    options: [
-      {
-        value: 'left',
-        label: 'Left',
-      },
-      {
-        value: 'right',
-        label: 'Right',
-      },
-    ],
-    default: 'right',
-  },
 
-  imageStyle: {
-    type: types.select,
-    id: 'image_style',
-    label: 'Image style',
-    options: [
-      {
-        value: 'cover',
-        label: 'Cover',
-      },
-      {
-        value: 'full',
-        label: 'Full',
-      },
-    ],
-    default: 'cover',
-  },
-};
+    /*
+      common elements
+    */
+    text: {
+      type: types.text,
+      id: 'text',
+      label: 'Text',
+    },
+
+    subheading: {
+      type: types.text,
+      id: 'subheading',
+      label: 'Subheading',
+    },
+
+    heading: {
+      type: types.text,
+      id: 'heading',
+      label: 'Heading',
+    },
+
+    number: {
+      type: types.number,
+      id: 'num',
+      label: 'Number',
+    },
+
+    copy: {
+      type: types.richtext,
+      id: 'copy',
+      label: 'Copy',
+    },
+
+    html: {
+      type: types.html,
+      id: 'html',
+      label: 'Raw HTML',
+    },
+
+    liquid: {
+      type: types.liquid,
+      id: 'liquid',
+      label: 'Raw Liquid',
+    },
+
+    videoLink: {
+      type: types.videoUrl,
+      id: 'video_url',
+      label: 'Video URL',
+      accept: [
+        'vimeo',
+        'youtube',
+      ],
+    },
+
+    /*
+      theming
+    */
+    font: {
+      type: types.select,
+      id: 'font',
+      label: 'Font',
+      options: [
+        defaults.none,
+        {
+          value: 'sans',
+          label: 'Sans serif',
+        },
+        {
+          value: 'serif',
+          label: 'Serif',
+        },
+        {
+          value: 'script',
+          label: 'Script',
+        },
+      ],
+      default: '',
+    },
+
+    textAlign: {
+      type: types.select,
+      id: 'text_align',
+      label: 'Text alignment',
+      options: [
+        {
+          value: 'left',
+          label: 'Left',
+        },
+        {
+          value: 'center',
+          label: 'Center',
+        },
+        {
+          value: 'right',
+          label: 'Right',
+        },
+        {
+          value: 'justify',
+          label: 'Justify',
+        },
+        {
+          value: 'start',
+          label: 'Start',
+        },
+        {
+          value: 'end',
+          label: 'End',
+        },
+      ],
+      default: 'left',
+    },
+
+    orientation: {
+      type: types.radio,
+      id: 'orientation',
+      label: 'Orientation',
+      options: [
+        {
+          value: 'left',
+          label: 'Left',
+        },
+        {
+          value: 'right',
+          label: 'Right',
+        },
+      ],
+      default: 'right',
+    },
+
+    imageStyle: {
+      type: types.select,
+      id: 'image_style',
+      label: 'Image style',
+      options: [
+        {
+          value: 'cover',
+          label: 'Cover',
+        },
+        {
+          value: 'full',
+          label: 'Full',
+        },
+      ],
+      default: 'cover',
+    },
+  };

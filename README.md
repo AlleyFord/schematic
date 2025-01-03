@@ -195,7 +195,7 @@ Since it also sucks creating a bunch of schema from scratch for every project, S
 | Method or property | Arguments | Description | Example |
 | --- | --- | --- | --- |
 | section | name, [props] | Returns starter object for section schema (name, preset name, and optionally tag) | `...app.section('Icon and heading', { class: 'section', tag: 'div' })` |
-| option | id, label | Returns option object | `app.option('text-left', 'Left align')` |
+| option | id, label, [group] | Returns option object | `app.option('heart', 'Heart icon', 'Theme Icon')` |
 | types | | Returns object of camelCase input types | `app.types.bgColor; // returns "color_background"` |
 | templates | | Returns object of camelCase template names | `app.templates.activateAccount; // returns "customers/activate_account"` |
 | common | | Returns object of common, pre-build generic inputs | `app.common.colorBackgroundSelector` |

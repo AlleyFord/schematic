@@ -199,7 +199,7 @@ class Schematic {
       const sourceLocalePath = path.resolve(localePath, sourceFile);
       const targetLocalePath = path.resolve(this.#opts.paths.locales, localeFilename);
 
-      const schema = this.compileSchema(sourceLocalePath);
+      const schema = this.compileSchema(sourceLocalePath, 'locale');
 
       if (schema) {
         try {
@@ -230,7 +230,7 @@ class Schematic {
 
     this.out(`uses schematic. generating schema...`);
 
-    const schema = this.compileSchema(settingsSchema);
+    const schema = this.compileSchema(settingsSchema, 'schema');
 
     if (schema) {
       try {
@@ -375,7 +375,7 @@ class Schematic {
       });
   }
 
-  compileSchema(file) {
+  compileSchema(file, type = 'section') {
     let schema;
 
     try {
@@ -394,7 +394,7 @@ class Schematic {
     }
 
     // transforms for old schema to new shopify schema
-    if (typeof schema.templates !== 'undefined') {
+    if (typeof schema.templates !== 'undefined' && type == 'section') {
       schema['enabled_on'] = {templates: schema.templates};
       delete schema.templates;
     }

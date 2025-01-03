@@ -88,6 +88,11 @@ class Schematic {
   }
 
   async writeLocalization() {
+    if(this.#opts.localization === undefined){
+      this.out(`schematic: checking for localization.. nothing to do\n`);
+      return;
+    }
+
     this.out(`schematic: attempting to write localization in ${this.#opts.localization.file}...`);
 
     const localizationFile = path.resolve(this.#opts.localization.file);

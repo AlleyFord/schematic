@@ -488,7 +488,7 @@ class Schematic {
 
 
   writeCode(contents, importFilename, schema) {
-    let lines = [], rendered = '';
+    let lines = ['id: section.id'], rendered = '';
 
     if (schema.settings) {
       for (const obj of schema.settings) {

@@ -1,6 +1,6 @@
 {
-  "name": "@alleyford/schematic",
-  "version": "2.1.5",
+  "name": "@anchovie/schematic",
+  "version": "2.1.6",
   "description": "Write Shopify schema with JS, not JSON.",
   "keywords": [
     "shopify",
@@ -10,7 +10,7 @@
   ],
   "main": "./loader.js",
   "bin": {
-    "schematic": "./bin/schematic"
+    "schematic": "bin/schematic"
   },
   "repository": {
     "type": "git",
@@ -22,9 +22,8 @@
     "url": "https://github.com/AlleyFord/schematic/issues"
   },
   "homepage": "https://github.com/AlleyFord/schematic#readme",
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "dependencies": {
-    "fs-extra": "^11.1.0"
+    "fs-extra": "^11.3.0"
   }
 }

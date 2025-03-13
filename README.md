@@ -9,10 +9,10 @@ Schematic helps you write Shopify theme schema in JS, not JSON. You can build ar
 
 ## To use
 *Locally:*
-`npm i -D @alleyford/schematic`
+`npm i -D @anchovie/schematic`
 
 *Globally:*
-`npm i -g @alleyford/schematic`
+`npm i -g @anchovie/schematic`
 
 *Running:*
 `npx schematic`
@@ -409,6 +409,7 @@ Running Schematic then produces the compiled schema, plus a line to render the s
 {%-
 
     render 'iconAndHeading'
+        id: section.id
         heading_left: section.settings.heading_left
         icon_left: section.settings.icon_left
         heading_right: section.settings.heading_right

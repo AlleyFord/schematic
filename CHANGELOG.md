@@ -7,6 +7,15 @@ Attempting to be more organized about feature changes between versions.
 ## Unreleased
 - n/a
 
+## 2.1.5
+- Update section method to receive props object, with sane defaults
+- Fix: Don't break when localization path is undefined
+- Feat: Allow 'group' when making a select option.
+- Check package.json type for "module". If it exists, then load all files in the schema definitions directory using .cjs instead of .js
+- fix: Don't add 'enabled_on' to non-section files
+- Add default `id: section.id` in writeCode initialization, ennsuring `section.id` is always included in the switchboard code by default.
+- Updated dependencies
+
 ## 2.1.4
 - `npx schematic section path/to/file` now supports that file being a schema file (js) and not just a liquid file
 

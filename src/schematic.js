@@ -277,7 +277,7 @@ class Schematic {
 
       if (type === 'section') content = `{%- comment -%} schematic writeCode {%- endcomment -%}\n`;
       if (type === 'snippet') content = `{%- liquid\n\n\n\n-%}\n<div class="${filename}">\n</div>\n`;
-      if (type === 'schema') content = `const { app } = require('@alleyford/schematic');\n\n\nmodule.exports = {\n  ...app.section('Boilerplate'),\n  enabled_on: {\n    templates: app.wildcard,\n    groups: app.wildcard,\n  },\n  settings: [],\n  blocks: [\n    {type: '@app'},\n  ],\n};\n`;
+      if (type === 'schema') content = `const { app } = require('@anchovie/schematic');\n\n\nmodule.exports = {\n  ...app.section('Boilerplate'),\n  enabled_on: {\n    templates: app.wildcard,\n    groups: app.wildcard,\n  },\n  settings: [],\n  blocks: [\n    {type: '@app'},\n  ],\n};\n`;
 
       await fs.writeFile(floc, content);
     }

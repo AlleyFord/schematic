@@ -154,7 +154,7 @@ If you need more customization, or your directory structure for schema definitio
 // ./schematic
 
 #!/usr/bin/env node --no-warnings
-const { Schematic } = require('@alleyford/schematic');
+const { Schematic } = require('@anchovie/schematic');
 
 const app = new Schematic({
   paths: {
@@ -259,7 +259,7 @@ Using these helpers, we can significantly reduce the amount of JS we have to wri
 ```js
 // ./src/schema/iconAndHeading.js
 
-const { app } = require('@alleyford/schematic');
+const { app } = require('@anchovie/schematic');
 const global = require('./global');
 
 module.exports = {
@@ -367,7 +367,7 @@ Include the file in your schema, and (`...cta`) will draw in all three definitio
 ```js
 // ./src/schema/iconAndHeading.js
 
-const { app } = require('@alleyford/schematic');
+const { app } = require('@anchovie/schematic');
 const global = require('./global');
 const cta = require('./components/cta');
 
@@ -453,7 +453,7 @@ The file should export an array of objects that match what would be manually def
 ```js
 // ./src/schema/settings_schema.js
 
-const { app } = require('@alleyford/schematic');
+const { app } = require('@anchovie/schematic');
 
 module.exports = [
   {

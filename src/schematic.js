@@ -25,11 +25,25 @@ class Schematic {
 
   #preCheckOk = false;
 
+  // New field to store which extension to use
+  #schemaExt = 'js';
+
   //loader = require.resolve('./webpackLoader.js');
 
   constructor(opts = null) {
     if (opts) {
       this.#opts = opts;
+    }
+
+    // Check package.json for "type"
+    try {
+      const pkgPath = path.resolve(process.cwd(), 'package.json');
+      const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+      if (pkg.type === 'module') {
+        this.#schemaExt = 'cjs';
+      }
+    } catch {
+      // fallback to 'js'
     }
   }
 
@@ -180,7 +194,8 @@ class Schematic {
     this.out(`exists. generating locales...`);
 
     fs.readdirSync(localePath).forEach(sourceFile => {
-      const localeFilename = sourceFile.replace('.js', '.json');
+      // Replace `.${this.#schemaExt}` with `.json`
+      const localeFilename = sourceFile.replace(`.${this.#schemaExt}`, '.json');
       const sourceLocalePath = path.resolve(localePath, sourceFile);
       const targetLocalePath = path.resolve(this.#opts.paths.locales, localeFilename);
 
@@ -203,9 +218,10 @@ class Schematic {
   }
 
   async buildConfig() {
-    this.out(`schematic: checking for ${this.#opts.paths.schema}/settings_schema.js...`);
+    // Use this.#schemaExt in the path and the log message
+    this.out(`schematic: checking for ${this.#opts.paths.schema}/settings_schema.${this.#schemaExt}...`);
 
-    const settingsSchema = path.resolve(this.#opts.paths.schema, `settings_schema.js`);
+    const settingsSchema = path.resolve(this.#opts.paths.schema, `settings_schema.${this.#schemaExt}`);
 
     if (!fs.existsSync(settingsSchema)) {
       this.out(`nothing to do\n`);
@@ -245,7 +261,7 @@ class Schematic {
     const files = {
       section: `${this.#opts.paths.sections}/${filename}.liquid`,
       snippet: `${this.#opts.paths.snippets}/${filename}.liquid`,
-      schema: `${this.#opts.paths.schema}/${filename}.js`,
+      schema: `${this.#opts.paths.schema}/${filename}.${this.#schemaExt}`,
     };
 
     for (const [type, file] of Object.entries(files)) {
@@ -261,7 +277,7 @@ class Schematic {
 
       if (type === 'section') content = `{%- comment -%} schematic writeCode {%- endcomment -%}\n`;
       if (type === 'snippet') content = `{%- liquid\n\n\n\n-%}\n<div class="${filename}">\n</div>\n`;
-      if (type === 'schema') content = `const { app } = require('@alleyford/schematic');\n\n\nmodule.exports = {\n  ...app.section('Boilerplate'),\n  enabled_on: {\n    templates: app.wildcard,\n    groups: app.wildcard,\n  },\n  settings: [],\n  blocks: [\n    {type: '@app'},\n  ],\n};\n`;
+      if (type === 'schema') content = `const { app } = require('@anchovie/schematic');\n\n\nmodule.exports = {\n  ...app.section('Boilerplate'),\n  enabled_on: {\n    templates: app.wildcard,\n    groups: app.wildcard,\n  },\n  settings: [],\n  blocks: [\n    {type: '@app'},\n  ],\n};\n`;
 
       await fs.writeFile(floc, content);
     }
@@ -288,7 +304,7 @@ class Schematic {
       }
     }
 
-    // from a simple filename or in a glob from relative path
+      // from a simple filename or in a glob from relative path
     catch(e) {
       floc = path.resolve(defaultPath, file);
       fstat = await fs.stat(floc);
@@ -354,9 +370,9 @@ class Schematic {
     return Promise.all(files.map(async file => {
       await this.runSection(file);
     }))
-    .catch(err => {
-      this.out(`${err}`, true);
-    });
+      .catch(err => {
+        this.out(`${err}`, true);
+      });
   }
 
   compileSchema(file, type = 'section') {
@@ -414,13 +430,15 @@ class Schematic {
       importFilename = filename;
     }
 
-    let importFile = path.resolve(this.#opts.paths.schema, `${importFilename}.js`);
+    // Use this.#schemaExt instead of hardcoding ".js"
+    let importFile = path.resolve(this.#opts.paths.schema, `${importFilename}.${this.#schemaExt}`);
 
     // doesn't exist, likely schematic options instead
     if (!fs.existsSync(importFile)) {
       opts = importFilename;
       importFilename = filename;
-      importFile = path.resolve(this.#opts.paths.schema, `${importFilename}.js`);
+      // Again, use this.#schemaExt
+      importFile = path.resolve(this.#opts.paths.schema, `${importFilename}.${this.#schemaExt}`);
     }
 
     const schema = this.compileSchema(importFile);
@@ -431,7 +449,7 @@ class Schematic {
 
     const newSchema = [
       '{% schema %}',
-        JSON.stringify(schema, null, 2),
+      JSON.stringify(schema, null, 2),
       '{% endschema %}',
     ].join('\n');
 
@@ -470,7 +488,7 @@ class Schematic {
 
 
   writeCode(contents, importFilename, schema) {
-    let lines = [], rendered = '';
+    let lines = ['id: section.id'], rendered = '';
 
     if (schema.settings) {
       for (const obj of schema.settings) {

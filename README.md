@@ -9,10 +9,10 @@ Schematic helps you write Shopify theme schema in JS, not JSON. You can build ar
 
 ## To use
 *Locally:*
-`npm i -D @alleyford/schematic`
+`npm i -D @anchovie/schematic`
 
 *Globally:*
-`npm i -g @alleyford/schematic`
+`npm i -g @anchovie/schematic`
 
 *Running:*
 `npx schematic`
@@ -37,9 +37,12 @@ const app = new Schematic({
 
 Then you're free to create schema definitions, either in full, partials, or whatever else. Here's some example Schematic schema JS for a Shopify section which renders a single icon and a heading.
 
+**Support for ES6:**
+_If your root package.json file has "type": "module", you should name your schema definition files with .cjs. Read more[ here](https://nodejs.org/docs/latest-v13.x/api/esm.html#esm_enabling)_
+
 First, some JS which exports objects we can reuse:
 ```js
-// ./src/schema/global.js
+// ./src/schema/global.js (or global.cjs)
 
 module.exports = {
   iconWidth: {
@@ -151,7 +154,7 @@ If you need more customization, or your directory structure for schema definitio
 // ./schematic
 
 #!/usr/bin/env node --no-warnings
-const { Schematic } = require('@alleyford/schematic');
+const { Schematic } = require('@anchovie/schematic');
 
 const app = new Schematic({
   paths: {
@@ -192,7 +195,7 @@ Since it also sucks creating a bunch of schema from scratch for every project, S
 | Method or property | Arguments | Description | Example |
 | --- | --- | --- | --- |
 | section | name, [props] | Returns starter object for section schema (name, preset name, and optionally tag) | `...app.section('Icon and heading', { class: 'section', tag: 'div' })` |
-| option | id, label | Returns option object | `app.option('text-left', 'Left align')` |
+| option | id, label, [group] | Returns option object | `app.option('heart', 'Heart icon', 'Theme Icon')` |
 | types | | Returns object of camelCase input types | `app.types.bgColor; // returns "color_background"` |
 | templates | | Returns object of camelCase template names | `app.templates.activateAccount; // returns "customers/activate_account"` |
 | common | | Returns object of common, pre-build generic inputs | `app.common.colorBackgroundSelector` |
@@ -256,7 +259,7 @@ Using these helpers, we can significantly reduce the amount of JS we have to wri
 ```js
 // ./src/schema/iconAndHeading.js
 
-const { app } = require('@alleyford/schematic');
+const { app } = require('@anchovie/schematic');
 const global = require('./global');
 
 module.exports = {
@@ -364,7 +367,7 @@ Include the file in your schema, and (`...cta`) will draw in all three definitio
 ```js
 // ./src/schema/iconAndHeading.js
 
-const { app } = require('@alleyford/schematic');
+const { app } = require('@anchovie/schematic');
 const global = require('./global');
 const cta = require('./components/cta');
 
@@ -406,6 +409,7 @@ Running Schematic then produces the compiled schema, plus a line to render the s
 {%-
 
     render 'iconAndHeading'
+        id: section.id
         heading_left: section.settings.heading_left
         icon_left: section.settings.icon_left
         heading_right: section.settings.heading_right
@@ -449,7 +453,7 @@ The file should export an array of objects that match what would be manually def
 ```js
 // ./src/schema/settings_schema.js
 
-const { app } = require('@alleyford/schematic');
+const { app } = require('@anchovie/schematic');
 
 module.exports = [
   {

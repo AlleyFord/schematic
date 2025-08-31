@@ -326,6 +326,12 @@ module.exports =
     label: 'Raw Liquid',
   },
 
+  video: {
+    type: types.video,
+    id: 'video',
+    label: 'Video'
+  },
+
   videoLink: {
     type: types.videoUrl,
     id: 'video_url',

@@ -1,5 +1,6 @@
 # Schematic
 A more sane approach for writing custom schema definitions within Shopify themes.
+
 **⚠️ ARCHIVED:** This repository is archived. Active development has moved to [`@anchovie/schematic`](https://github.com/anchovie/schematic). Please use the new package for latest features and bug fixes.
 
 ## Working with Shopify schema sucks
